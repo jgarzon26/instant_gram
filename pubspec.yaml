@@ -7,8 +7,10 @@ environment:
   sdk: '>=3.0.3 <4.0.0'
 
 dependencies:
+  appwrite: ^9.0.1
   flutter:
     sdk: flutter
+  riverpod: ^2.3.6
 
 dev_dependencies:
   flutter_test:
