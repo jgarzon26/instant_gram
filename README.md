@@ -1,3 +1,3 @@
 # instant_gram
 
-A new Flutter project.
+Midterm Project in SP Elec 3B
