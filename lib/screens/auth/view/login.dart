@@ -1,11 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/apis/auth_api.dart';
 
-class Login extends StatelessWidget {
+class Login extends ConsumerWidget {
   const Login({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Instant-gram!'),
@@ -64,7 +66,9 @@ class Login extends StatelessWidget {
                   ),
                   buildSignUpLinkButton(
                     label: "Google",
-                    onPressed: () {},
+                    onPressed: () {
+                      ref.read(authApiProvider).loginWithGoogle();
+                    },
                   ),
                 ],
               ),
