@@ -1,6 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:instant_gram/constants/appwrite.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _clientProvider = Provider((ref) {
   Client client = Client();

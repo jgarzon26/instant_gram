@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:instant_gram/apis/auth_api.dart';
+import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
 
 class Login extends ConsumerWidget {
   const Login({super.key});
@@ -40,7 +40,9 @@ class Login extends ConsumerWidget {
             ),
             buildLoginButton(
               context: context,
-              onPressed: () {},
+              onPressed: () {
+                ref.read(authControllerProvider.notifier).loginWithGoogle(ref);
+              },
               icon: const Icon(Icons.email),
               label: 'Google',
             ),
@@ -66,9 +68,7 @@ class Login extends ConsumerWidget {
                   ),
                   buildSignUpLinkButton(
                     label: "Google",
-                    onPressed: () {
-                      ref.read(authApiProvider).loginWithGoogle();
-                    },
+                    onPressed: () {},
                   ),
                 ],
               ),

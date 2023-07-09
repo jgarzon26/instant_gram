@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/screens/screens.dart';
 import 'package:instant_gram/theme/theme.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
@@ -14,6 +15,10 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: AppTheme.theme,
       home: const Login(),
+      routes: {
+        '/login': (context) => const Login(),
+        '/home': (context) => const Home(),
+      },
     );
   }
 }

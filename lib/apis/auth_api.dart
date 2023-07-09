@@ -1,13 +1,13 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:instant_gram/core/appwrite_providers.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final authApiProvider = Provider((ref) => _AuthApi(ref.read(accountProvider)));
+final authApiProvider = Provider((ref) => AuthApi(ref.read(accountProvider)));
 
-class _AuthApi {
+class AuthApi {
   final Account _account;
 
-  _AuthApi(this._account);
+  AuthApi(this._account);
 
   Future<void> loginWithFacebook() async {
     await _account.createOAuth2Session(
@@ -21,9 +21,6 @@ class _AuthApi {
   Future<void> loginWithGoogle() async {
     await _account.createOAuth2Session(
       provider: 'google',
-      success: 'https://localhost:8080',
-      failure: 'https://localhost:8080',
-      scopes: ['profile'],
     );
   }
 
