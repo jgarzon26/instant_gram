@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
 
-final kBackgroundColorLight = Colors.grey[700];
+const kBackgroundColorLight = Color.fromARGB(255, 61, 59, 59);
 final kBackgroundColor = Colors.grey[850];
 final kForegroundColor = Colors.grey[300];

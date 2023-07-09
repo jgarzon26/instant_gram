@@ -8,14 +8,14 @@ class AppTheme {
       backgroundColor: kBackgroundColorLight,
       foregroundColor: kForegroundColor,
       titleTextStyle: const TextStyle().copyWith(
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.bold,
         fontSize: 20,
         color: kForegroundColor,
       ),
       elevation: 2,
     ),
     dividerTheme: const DividerThemeData().copyWith(
-      color: Colors.white24,
+      color: Colors.white10,
       thickness: 1,
     ),
     textTheme: const TextTheme().copyWith(
@@ -26,13 +26,16 @@ class AppTheme {
       ),
       titleSmall: const TextStyle().copyWith(
         fontWeight: FontWeight.normal,
-        fontSize: 22,
+        fontSize: 16,
+        color: kForegroundColor,
+      ),
+      labelMedium: const TextStyle().copyWith(
+        fontWeight: FontWeight.normal,
+        fontSize: 14,
         color: kForegroundColor,
       ),
     ),
     buttonTheme: const ButtonThemeData().copyWith(
-      buttonColor: kBackgroundColor,
-      textTheme: ButtonTextTheme.normal,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
