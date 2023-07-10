@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:instant_gram/screens/home/pages/pages.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -97,7 +98,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           Center(
             child: Text("No Photos or Videos. Upload some!"),
           ),
-          Placeholder(),
+          SearchPage(),
           Placeholder(),
         ],
       ),
