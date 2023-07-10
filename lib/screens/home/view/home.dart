@@ -95,11 +95,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           );
         },
         children: const [
-          Center(
-            child: Text("No Photos or Videos. Upload some!"),
-          ),
+          UserUploadPage(),
           SearchPage(),
-          Placeholder(),
+          HomePage(),
         ],
       ),
     );
