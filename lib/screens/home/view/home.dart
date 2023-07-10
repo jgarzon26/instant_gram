@@ -70,11 +70,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             ),
           ),
           onTap: (page) {
+<<<<<<< HEAD
             pageController.animateToPage(
               page,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeIn,
             );
+=======
+            setState(() {
+              pageController.animateToPage(
+                page,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeIn,
+              );
+            });
+>>>>>>> main
           },
           tabs: bottomIcons
               .map((icon) => Icon(
@@ -86,12 +96,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       body: PageView(
         controller: pageController,
         onPageChanged: (index) {
+<<<<<<< HEAD
           tabController.animateTo(
             index,
             duration: const Duration(
               milliseconds: 100,
             ),
           );
+=======
+          setState(() {
+            tabController.animateTo(
+              index,
+              duration: const Duration(
+                milliseconds: 100,
+              ),
+            );
+          });
+>>>>>>> main
         },
         children: const [
           Center(
