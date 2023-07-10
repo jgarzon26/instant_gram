@@ -49,7 +49,7 @@ class Login extends ConsumerWidget {
             buildLoginButton(
               context: context,
               onPressed: () {
-                ref.read(authControllerProvider.notifier).loginWithGoogle(ref);
+                ref.read(authControllerProvider.notifier).loginWithGoogle();
               },
               icon: const ImageIcon(
                 AssetImage('assets/icons/google_blue.png'),

@@ -1,13 +1,18 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:instant_gram/core/appwrite_providers.dart';
+import 'package:appwrite/models.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/core/core.dart';
 
-final authApiProvider = Provider((ref) => AuthApi(ref.read(accountProvider)));
+final authApiProvider = Provider((ref) {
+  final account = ref.watch(accountProvider);
+  return AuthApi(account: account);
+});
 
 class AuthApi {
   final Account _account;
 
-  AuthApi(this._account);
+  AuthApi({required Account account}) : _account = account;
 
   Future<void> loginWithFacebook() async {
     await _account.createOAuth2Session(
@@ -18,10 +23,18 @@ class AuthApi {
     );
   }
 
-  Future<void> loginWithGoogle() async {
-    await _account.createOAuth2Session(
-      provider: 'google',
-    );
+  FutureEither<User> loginWithGoogle() async {
+    try {
+      await _account.createOAuth2Session(
+        provider: 'google',
+        success: 'https://cloud.appwrite.io/v1/account/sessions/oauth2/google',
+        failure: 'https://cloud.appwrite.io/v1/account/sessions/oauth2/google',
+      );
+      final user = await _account.get();
+      return Right(user);
+    } on AppwriteException catch (e, stackTrace) {
+      return Left(Failure(e.message ?? 'Something went wrong', stackTrace));
+    }
   }
 
   Future<void> logout() async {

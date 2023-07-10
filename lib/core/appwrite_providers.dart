@@ -11,5 +11,6 @@ final _clientProvider = Provider((ref) {
 });
 
 final accountProvider = Provider((ref) {
-  return Account(ref.read(_clientProvider));
+  final client = ref.watch(_clientProvider);
+  return Account(client);
 });
