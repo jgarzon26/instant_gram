@@ -70,8 +70,14 @@ class _SearchPageState extends State<SearchPage> {
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          const SizedBox(height: 20),
-          const Placeholder(),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.2,
+          ),
+          Image.asset(
+            "assets/images/empty_search.png",
+            fit: BoxFit.cover,
+            width: double.infinity,
+          ),
         ],
       ),
     );
