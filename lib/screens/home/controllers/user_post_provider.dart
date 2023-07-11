@@ -1,18 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/models/models.dart';
-import 'package:instant_gram/sample_data.dart';
 
 final userPostProvider = StateNotifierProvider<UserPostProvider, List<Post>>(
     (ref) => UserPostProvider());
 
 class UserPostProvider extends StateNotifier<List<Post>> {
-  UserPostProvider()
-      : super([
-          samplePost,
-        ]);
+  UserPostProvider() : super([]);
 
-  void addPost(Post post) {
-    state = [...state, post];
+  void addPost(UserPost post) {
+    state = [
+      ...state,
+      Post(
+        userPost: post,
+      ),
+    ];
   }
 
   void removePost(Post post) {

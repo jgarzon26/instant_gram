@@ -6,8 +6,7 @@ class Post {
   UserPost userPost;
 
   Post({
-    required this.comments,
-    required this.numberOfLikes,
     required this.userPost,
+    this.comments = const [],
   });
 }

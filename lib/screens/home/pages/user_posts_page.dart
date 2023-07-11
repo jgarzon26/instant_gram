@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/post_detail/view/post_detail.dart';
@@ -22,6 +25,7 @@ class UserPostsPage extends StatelessWidget {
         ),
         itemCount: userPosts.length,
         itemBuilder: (context, index) {
+          log(userPosts[index].userPost.path);
           return InkWell(
             onTap: () {
               Navigator.of(context).push(
@@ -34,8 +38,8 @@ class UserPostsPage extends StatelessWidget {
             },
             child: Hero(
               tag: userPosts[index].userPost.id,
-              child: Image.network(
-                userPosts[index].userPost.path,
+              child: Image.file(
+                File(userPosts[index].userPost.thumbnail),
                 fit: BoxFit.cover,
               ),
             ),

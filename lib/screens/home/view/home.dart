@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
+import 'package:instant_gram/screens/home/widgets/home_appbar.dart';
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -14,21 +15,6 @@ class Home extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   final pageController = PageController();
   late final TabController tabController;
-
-  final List<Map<String, dynamic>> actionButtons = [
-    {
-      "icon": Icons.movie_creation_outlined,
-      "onPressed": () {},
-    },
-    {
-      "icon": Icons.add_photo_alternate_outlined,
-      "onPressed": () {},
-    },
-    {
-      "icon": Icons.logout_outlined,
-      "onPressed": () {},
-    }
-  ];
 
   final bottomIcons = [
     Icons.person,
@@ -54,37 +40,14 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Instant-gram!'),
-        actions: actionButtons
-            .map((action) => buildActionButton(
-                  icon: Icon(action["icon"]),
-                  onPressed: action["onPressed"],
-                ))
-            .toList(),
-        bottom: TabBar(
-          controller: tabController,
-          labelPadding: const EdgeInsets.symmetric(
-            vertical: 10,
-          ),
-          indicator: const UnderlineTabIndicator(
-            borderSide: BorderSide(
-              color: Colors.white12,
-              width: 4,
-            ),
-          ),
-          onTap: (page) {
-            pageController.animateToPage(
-              page,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeIn,
-            );
-          },
-          tabs: bottomIcons
-              .map((icon) => Icon(
-                    icon,
-                  ))
-              .toList(),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(
+          kToolbarHeight * 2,
+        ),
+        child: HomeAppBar(
+          tabController: tabController,
+          pageController: pageController,
+          bottomIcons: bottomIcons,
         ),
       ),
       body: PageView(
@@ -107,14 +70,6 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
           ),
         ],
       ),
-    );
-  }
-
-  IconButton buildActionButton(
-      {required Icon icon, required VoidCallback onPressed}) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: icon,
     );
   }
 }

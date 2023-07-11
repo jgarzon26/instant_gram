@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:instant_gram/common/common.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:intl/intl.dart';
+import 'package:video_player/video_player.dart';
 
-class PostDetail extends StatelessWidget {
+class PostDetail extends StatefulWidget {
   final Post post;
   final String tag;
 
@@ -11,6 +15,31 @@ class PostDetail extends StatelessWidget {
     required this.post,
     required this.tag,
   });
+
+  @override
+  State<PostDetail> createState() => _PostDetailState();
+}
+
+class _PostDetailState extends State<PostDetail> {
+  VideoPlayerController? videoPlayerController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.post.userPost.isVideo) {
+      videoPlayerController = VideoPlayerController.file(
+        File(widget.post.userPost.path),
+      )..initialize().then((value) {
+          setState(() {});
+        });
+    }
+  }
+
+  @override
+  void dispose() {
+    videoPlayerController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,28 +61,29 @@ class PostDetail extends StatelessWidget {
       body: Column(
         children: [
           Hero(
-            tag: tag,
-            child: AspectRatio(
-              aspectRatio: 4 / 3,
-              child: Image.network(post.userPost.path, fit: BoxFit.cover),
+            tag: widget.tag,
+            child: MediaDisplay(
+              videoPlayerController: videoPlayerController,
+              isVideo: widget.post.userPost.isVideo,
+              path: widget.post.userPost.path,
             ),
           ),
           SizedBox(
-            height: (post.userPost.allowLikes == false &&
-                    post.userPost.allowComments == false)
+            height: (widget.post.userPost.allowLikes == false &&
+                    widget.post.userPost.allowComments == false)
                 ? MediaQuery.of(context).size.height * 0.05
                 : null,
             child: Row(
               children: [
                 Visibility(
-                  visible: post.userPost.allowLikes,
+                  visible: widget.post.userPost.allowLikes,
                   child: IconButton(
                     onPressed: () {},
                     icon: const Icon(Icons.favorite_border),
                   ),
                 ),
                 Visibility(
-                  visible: post.userPost.allowComments,
+                  visible: widget.post.userPost.allowComments,
                   child: IconButton(
                     onPressed: () {},
                     icon: const Icon(Icons.mode_comment_outlined),
@@ -76,7 +106,7 @@ class PostDetail extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      post.userPost.description,
+                      widget.post.userPost.description,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.normal,
                             fontSize: 18,
@@ -88,7 +118,7 @@ class PostDetail extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "${DateFormat.d().format(post.userPost.postDate)} ${DateFormat.MMM().format(post.userPost.postDate)}, ${DateFormat.y().format(post.userPost.postDate)}, ${DateFormat.jm().format(post.userPost.postDate)}",
+                    "${DateFormat.d().format(widget.post.userPost.postDate)} ${DateFormat.MMM().format(widget.post.userPost.postDate)}, ${DateFormat.y().format(widget.post.userPost.postDate)}, ${DateFormat.jm().format(widget.post.userPost.postDate)}",
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.normal,
                           letterSpacing: 1.2,
@@ -102,7 +132,7 @@ class PostDetail extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "${post.numberOfLikes} ${changePerson()} liked this",
+                    "${widget.post.numberOfLikes} ${changePerson()} liked this",
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.normal,
                           letterSpacing: 1.2,
@@ -110,7 +140,7 @@ class PostDetail extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
-                post.comments.length >= 3
+                widget.post.comments.length >= 3
                     ? buildLatestComments(context)
                     : const SizedBox.shrink(),
               ],
@@ -125,7 +155,7 @@ class PostDetail extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      children: List.generate(post.comments.length, (index) {
+      children: List.generate(widget.post.comments.length, (index) {
         return Column(
           children: [
             Row(
@@ -138,7 +168,7 @@ class PostDetail extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  post.comments[index],
+                  widget.post.comments[index],
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                         fontWeight: FontWeight.normal,
                         fontSize: 18,
@@ -154,7 +184,7 @@ class PostDetail extends StatelessWidget {
   }
 
   String changePerson() {
-    if (post.numberOfLikes <= 1) {
+    if (widget.post.numberOfLikes <= 1) {
       return "person";
     } else {
       return "persons";

@@ -5,6 +5,8 @@ class UserPost {
   final String path, description;
   final bool allowLikes, allowComments;
   final DateTime postDate;
+  final bool isVideo;
+  final String thumbnail;
 
   UserPost({
     required this.path,
@@ -12,5 +14,7 @@ class UserPost {
     required this.allowLikes,
     required this.allowComments,
     required this.postDate,
+    required this.isVideo,
+    required this.thumbnail,
   });
 }
