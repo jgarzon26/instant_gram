@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -25,7 +24,6 @@ class UserPostsPage extends StatelessWidget {
         ),
         itemCount: userPosts.length,
         itemBuilder: (context, index) {
-          log(userPosts[index].userPost.path);
           return InkWell(
             onTap: () {
               Navigator.of(context).push(
@@ -36,12 +34,24 @@ class UserPostsPage extends StatelessWidget {
                         )),
               );
             },
-            child: Hero(
-              tag: userPosts[index].userPost.id,
-              child: Image.file(
-                File(userPosts[index].userPost.thumbnail),
-                fit: BoxFit.cover,
-              ),
+            child: Stack(
+              alignment: Alignment.center,
+              fit: StackFit.expand,
+              children: [
+                Hero(
+                  tag: userPosts[index].userPost.id,
+                  child: Image.file(
+                    File(userPosts[index].userPost.thumbnail),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                if (userPosts[index].userPost.isVideo)
+                  const Icon(
+                    Icons.play_circle_outline,
+                    size: 50,
+                    color: Colors.white54,
+                  ),
+              ],
             ),
           );
         },

@@ -7,6 +7,7 @@ import 'package:instant_gram/common/common.dart';
 import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -171,7 +172,8 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   Future<void> generateThumbnail() async {
     final thumbnailPath = await VideoThumbnail.thumbnailFile(
       video: widget.media.path,
-      imageFormat: ImageFormat.JPEG,
+      thumbnailPath: (await getTemporaryDirectory()).path,
+      imageFormat: ImageFormat.PNG,
       maxWidth: 100,
       quality: 20,
     );
