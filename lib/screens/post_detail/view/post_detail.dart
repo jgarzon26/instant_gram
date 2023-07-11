@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:instant_gram/common/common.dart';
 import 'package:instant_gram/models/models.dart';
+import 'package:instant_gram/screens/post_detail/widgets/mini_comments_section.dart';
+import 'package:instant_gram/screens/post_detail/widgets/post_action_buttons.dart';
 import 'package:intl/intl.dart';
 import 'package:video_player/video_player.dart';
 
@@ -68,29 +70,13 @@ class _PostDetailState extends State<PostDetail> {
               path: widget.post.userPost.path,
             ),
           ),
-          SizedBox(
-            height: (widget.post.userPost.allowLikes == false &&
-                    widget.post.userPost.allowComments == false)
-                ? MediaQuery.of(context).size.height * 0.05
-                : null,
-            child: Row(
-              children: [
-                Visibility(
-                  visible: widget.post.userPost.allowLikes,
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.favorite_border),
-                  ),
-                ),
-                Visibility(
-                  visible: widget.post.userPost.allowComments,
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.mode_comment_outlined),
-                  ),
-                ),
-              ],
-            ),
+          PostActionButtons(
+            allowLikes: widget.post.userPost.allowLikes,
+            allowComments: widget.post.userPost.allowComments,
+            post: widget.post,
+            onLike: () {
+              setState(() {});
+            },
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -141,45 +127,16 @@ class _PostDetailState extends State<PostDetail> {
                 ),
                 const SizedBox(height: 15),
                 widget.post.comments.length >= 3
-                    ? buildLatestComments(context)
+                    ? MiniCommentsSection(
+                        comments: widget.post.comments,
+                        context: context,
+                      )
                     : const SizedBox.shrink(),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildLatestComments(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: List.generate(widget.post.comments.length, (index) {
-        return Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  "Sample User $index",
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        fontSize: 18,
-                      ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  widget.post.comments[index],
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 18,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-          ],
-        );
-      }),
     );
   }
 
