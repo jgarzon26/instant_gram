@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
+import 'package:instant_gram/screens/post_detail/view/comment_modal.dart';
 
 class PostActionButtons extends ConsumerStatefulWidget {
   const PostActionButtons({
@@ -64,7 +65,18 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
           Visibility(
             visible: widget.allowComments,
             child: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                showModalBottomSheet(
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  context: context,
+                  builder: (_) {
+                    return CommentModal(
+                      post: widget.post,
+                    );
+                  },
+                );
+              },
               icon: const Icon(Icons.mode_comment_outlined),
             ),
           ),
