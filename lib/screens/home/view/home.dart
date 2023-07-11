@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
+import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
 
-class Home extends StatefulWidget {
+class Home extends ConsumerStatefulWidget {
   const Home({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  ConsumerState<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin {
+class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   final pageController = PageController();
   late final TabController tabController;
 
@@ -94,10 +97,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             ),
           );
         },
-        children: const [
-          UserUploadPage(),
-          SearchPage(),
-          HomePage(),
+        children: [
+          UserPostsPage(
+            userPosts: ref.watch(userPostProvider),
+          ),
+          const SearchPage(),
+          UserPostsPage(
+            userPosts: ref.watch(allPostsProvider),
+          ),
         ],
       ),
     );

@@ -1,4 +1,7 @@
+import 'package:uuid/uuid.dart';
+
 class UserPost {
+  final String id = const Uuid().v4();
   final String path, description;
   final bool allowLikes, allowComments;
   final DateTime postDate;
