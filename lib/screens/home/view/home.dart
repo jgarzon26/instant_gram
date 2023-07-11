@@ -59,6 +59,10 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
               milliseconds: 100,
             ),
           );
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
         },
         children: [
           UserPostsPage(

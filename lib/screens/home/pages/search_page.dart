@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/models/models.dart';
+import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
+import 'package:instant_gram/screens/home/widgets/posts_grid_view.dart';
 
-class SearchPage extends StatefulWidget {
+class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({
     super.key,
   });
 
   @override
-  State<SearchPage> createState() => _SearchPageState();
+  ConsumerState<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends ConsumerState<SearchPage> {
   final searchController = TextEditingController();
 
-  var hasInput = false;
+  List<Post> searchResults = [];
 
   @override
   void dispose() {
@@ -31,12 +35,24 @@ class _SearchPageState extends State<SearchPage> {
               vertical: 15,
             ),
             child: TextField(
-              onChanged: (text) {
-                setState(() {
-                  hasInput = text.isNotEmpty;
-                });
-              },
               controller: searchController,
+              onChanged: (value) {
+                List<Post> allPosts = ref.read(allPostsProvider);
+                if (value.isEmpty) {
+                  setState(() {
+                    searchResults = [];
+                  });
+                } else {
+                  List<Post> posts = allPosts
+                      .where((post) => post.userPost.description
+                          .toLowerCase()
+                          .contains(value.toLowerCase()))
+                      .toList();
+                  setState(() {
+                    searchResults = posts;
+                  });
+                }
+              },
               decoration: InputDecoration(
                 hintText: "Enter your search term here",
                 suffixIcon: IconButton(
@@ -46,15 +62,13 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
           ),
-          !hasInput
-              ? buildEmptyResult(context)
-              : const Placeholder() //display search result,
+          searchResults.isEmpty ? buildEmptyResult(context) : buildResults(),
         ],
       ),
     );
   }
 
-  Padding buildEmptyResult(BuildContext context) {
+  Widget buildEmptyResult(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 30,
@@ -80,6 +94,13 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildResults() {
+    return PostsGridView(
+      userPosts: searchResults,
+      shrinkWrap: true,
     );
   }
 }
