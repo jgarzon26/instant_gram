@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:instant_gram/core/utils.dart';
+import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
@@ -29,6 +31,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
       length: bottomIcons.length,
       vsync: this,
     );
+
     super.initState();
   }
 
@@ -51,27 +54,33 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
           bottomIcons: bottomIcons,
         ),
       ),
-      body: PageView(
-        controller: pageController,
-        onPageChanged: (index) {
-          tabController.animateTo(
-            index,
-            duration: const Duration(
-              milliseconds: 100,
-            ),
-          );
-          dismissKeyboardOnLoseFocus(context);
-        },
-        children: [
-          UserPostsPage(
-            userPosts: ref.watch(userPostProvider),
+      body: ref.watch(authControllerProvider)
+          ? const Center(child: CircularProgressIndicator())
+          : buildHomePage(context),
+    );
+  }
+
+  PageView buildHomePage(BuildContext context) {
+    return PageView(
+      controller: pageController,
+      onPageChanged: (index) {
+        tabController.animateTo(
+          index,
+          duration: const Duration(
+            milliseconds: 100,
           ),
-          const SearchPage(),
-          UserPostsPage(
-            userPosts: ref.watch(allPostsProvider),
-          ),
-        ],
-      ),
+        );
+        dismissKeyboardOnLoseFocus(context);
+      },
+      children: [
+        UserPostsPage(
+          userPosts: ref.watch(userPostProvider),
+        ),
+        const SearchPage(),
+        UserPostsPage(
+          userPosts: ref.watch(allPostsProvider),
+        ),
+      ],
     );
   }
 }

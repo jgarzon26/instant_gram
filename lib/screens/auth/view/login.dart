@@ -14,83 +14,89 @@ class Login extends ConsumerWidget {
         title: const Text('Instant-gram!'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 10,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              "Welcome to Instant-gram!",
-              style: Theme.of(context).textTheme.displayLarge,
+      body: (ref.watch(authControllerProvider))
+          ? const Center(child: CircularProgressIndicator())
+          : buildLoginBody(context, ref),
+    );
+  }
+
+  Padding buildLoginBody(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          Text(
+            "Welcome to Instant-gram!",
+            style: Theme.of(context).textTheme.displayLarge,
+          ),
+          const SizedBox(height: 40),
+          const Divider(),
+          const SizedBox(height: 40),
+          Text(
+            "Login into your account using one of the options below.",
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 20),
+          buildLoginButton(
+            context: context,
+            onPressed: () {},
+            icon: const Icon(
+              Icons.facebook,
+              color: Color.fromARGB(255, 23, 82, 129),
+              size: 30,
             ),
-            const SizedBox(height: 40),
-            const Divider(),
-            const SizedBox(height: 40),
-            Text(
-              "Login into your account using one of the options below.",
+            label: 'Facebook',
+          ),
+          const SizedBox(height: 20),
+          buildLoginButton(
+            context: context,
+            onPressed: () {
+              ref
+                  .read(authControllerProvider.notifier)
+                  .loginWithGoogle(context);
+            },
+            icon: const ImageIcon(
+              AssetImage('assets/icons/google_blue.png'),
+              color: Colors.blue,
+              size: 40,
+            ),
+            label: 'Google',
+          ),
+          const SizedBox(height: 40),
+          const Divider(),
+          const SizedBox(height: 40),
+          Text(
+            "Don't have an account?",
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 10),
+          RichText(
+            text: TextSpan(
               style: Theme.of(context).textTheme.titleSmall,
+              children: [
+                const TextSpan(
+                  text: "Sign Up on ",
+                ),
+                buildSignUpLinkButton(
+                  label: 'Facebook',
+                  onPressed: () {},
+                ),
+                const TextSpan(
+                  text: " or create an account on ",
+                ),
+                buildSignUpLinkButton(
+                  label: "Google",
+                  onPressed: () {},
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            buildLoginButton(
-              context: context,
-              onPressed: () {},
-              icon: const Icon(
-                Icons.facebook,
-                color: Color.fromARGB(255, 23, 82, 129),
-                size: 30,
-              ),
-              label: 'Facebook',
-            ),
-            const SizedBox(height: 20),
-            buildLoginButton(
-              context: context,
-              onPressed: () {
-                ref
-                    .read(authControllerProvider.notifier)
-                    .loginWithGoogle(context);
-              },
-              icon: const ImageIcon(
-                AssetImage('assets/icons/google_blue.png'),
-                color: Colors.blue,
-                size: 40,
-              ),
-              label: 'Google',
-            ),
-            const SizedBox(height: 40),
-            const Divider(),
-            const SizedBox(height: 40),
-            Text(
-              "Don't have an account?",
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 10),
-            RichText(
-              text: TextSpan(
-                style: Theme.of(context).textTheme.titleSmall,
-                children: [
-                  const TextSpan(
-                    text: "Sign Up on ",
-                  ),
-                  buildSignUpLinkButton(
-                    label: 'Facebook',
-                    onPressed: () {},
-                  ),
-                  const TextSpan(
-                    text: " or create an account on ",
-                  ),
-                  buildSignUpLinkButton(
-                    label: "Google",
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

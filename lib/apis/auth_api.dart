@@ -9,7 +9,6 @@ final authApiProvider = Provider((ref) => AuthApi(ref.read(accountProvider)));
 
 class AuthApi {
   final Account _account;
-
   AuthApi(this._account);
 
   Future<void> loginWithFacebook() async {
@@ -21,12 +20,15 @@ class AuthApi {
     );
   }
 
+  Future getUserDetails() async {
+    return _account.get();
+  }
+
   FutureEither loginWithGoogle() async {
     try {
       final session = await _account.createOAuth2Session(
         provider: 'google',
       );
-
       return Right(session);
     } on AppwriteException catch (e) {
       return Left(e.message ?? 'Something went wrong');
