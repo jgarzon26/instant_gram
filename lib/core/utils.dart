@@ -10,3 +10,10 @@ void showSnackbar(BuildContext context, String message) {
     ),
   );
 }
+
+void dismissKeyboardOnLoseFocus(BuildContext context) {
+  FocusScopeNode currentFocus = FocusScope.of(context);
+  if (!currentFocus.hasPrimaryFocus) {
+    currentFocus.unfocus();
+  }
+}

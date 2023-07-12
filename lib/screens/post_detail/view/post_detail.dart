@@ -74,7 +74,7 @@ class _PostDetailState extends State<PostDetail> {
             allowLikes: widget.post.userPost.allowLikes,
             allowComments: widget.post.userPost.allowComments,
             post: widget.post,
-            onLike: () {
+            resetState: () {
               setState(() {});
             },
           ),
@@ -126,7 +126,7 @@ class _PostDetailState extends State<PostDetail> {
                   ),
                 ),
                 const SizedBox(height: 15),
-                widget.post.comments.length >= 3
+                widget.post.comments.isNotEmpty
                     ? MiniCommentsSection(
                         comments: widget.post.comments,
                         context: context,

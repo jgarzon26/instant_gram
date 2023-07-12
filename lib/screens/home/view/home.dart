@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
@@ -59,10 +60,7 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
               milliseconds: 100,
             ),
           );
-          FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
+          dismissKeyboardOnLoseFocus(context);
         },
         children: [
           UserPostsPage(

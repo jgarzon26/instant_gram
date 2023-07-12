@@ -15,13 +15,14 @@ class MiniCommentsSection extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      children: List.generate(comments.length, (index) {
+      children:
+          List.generate(comments.length <= 3 ? comments.length : 3, (index) {
         return Column(
           children: [
             Row(
               children: [
                 Text(
-                  "Sample User $index",
+                  "Anonymous User ",
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                         fontSize: 18,
                       ),
@@ -31,7 +32,7 @@ class MiniCommentsSection extends StatelessWidget {
                   comments[index],
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                         fontWeight: FontWeight.normal,
-                        fontSize: 18,
+                        fontSize: 16,
                       ),
                 ),
               ],
