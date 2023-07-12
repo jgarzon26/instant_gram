@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:instant_gram/apis/auth_api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +21,7 @@ class _AuthController extends StateNotifier<bool> {
       await _authApi.loginWithGoogle();
       state = false;
     } on AppwriteException catch (e) {
-      print(e.message);
+      log(e.message ?? 'Error logging in with Google');
     }
   }
 }
