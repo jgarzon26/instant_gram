@@ -20,9 +20,8 @@ class MainApp extends StatelessWidget {
     );
     return MaterialApp(
       theme: AppTheme.theme,
-      home: const Login(),
       routes: {
-        '/login': (context) => const Login(),
+        '/': (context) => const Login(),
         '/home': (context) => const Home(),
       },
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
 import 'package:instant_gram/screens/createPost/view/create_post.dart';
 
-class HomeAppBar extends StatelessWidget {
+class HomeAppBar extends ConsumerWidget {
   final TabController tabController;
   final PageController pageController;
   final List<IconData> bottomIcons;
@@ -15,7 +17,7 @@ class HomeAppBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final List<Map<String, dynamic>> actionButtons = [
       {
         "icon": Icons.movie_creation_outlined,
@@ -55,7 +57,9 @@ class HomeAppBar extends StatelessWidget {
       },
       {
         "icon": Icons.logout_outlined,
-        "onPressed": () {},
+        "onPressed": () {
+          ref.read(authControllerProvider.notifier).logout(context);
+        },
       }
     ];
     return AppBar(
