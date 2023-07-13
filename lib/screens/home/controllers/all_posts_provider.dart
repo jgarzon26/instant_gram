@@ -58,6 +58,19 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
     }).toList();
   }
 
+  void deleteCommentFromUser(Post post, UserComment comment) {
+    state = state.map((element) {
+      if (element.userPost.postId == post.userPost.postId) {
+        element.comments = element.comments
+            .where((c) => c.commentId != comment.commentId)
+            .toList();
+        return element;
+      } else {
+        return element;
+      }
+    }).toList();
+  }
+
   void removePost(Post post) {
     state = state
         .where((element) => element.userPost.postId != post.userPost.postId)

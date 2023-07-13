@@ -4,8 +4,7 @@ import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
-
-import '../widgets/comment_listtile.dart';
+import 'package:instant_gram/screens/post_detail/widgets/comments_section.dart';
 
 class CommentModal extends ConsumerStatefulWidget {
   const CommentModal({
@@ -56,7 +55,11 @@ class _CommentModalState extends ConsumerState<CommentModal> {
                 String userName = await ref
                     .read(authControllerProvider.notifier)
                     .getUserDetails(context)
-                    .then((user) => user.name);
+                    .then((user) {
+                  showSnackbar(context, "Comment added successfully");
+                  dismissKeyboardOnLoseFocus(context);
+                  return user.name;
+                });
                 final userComment = UserComment(
                   comment: inputCommentController.text,
                   userName: userName,
@@ -71,8 +74,6 @@ class _CommentModalState extends ConsumerState<CommentModal> {
                   });
                   widget.onCommentAdded?.call();
                   inputCommentController.clear();
-                  showSnackbar(context, "Comment added successfully");
-                  dismissKeyboardOnLoseFocus(context);
                 }
               },
               icon: const Icon(Icons.send),
@@ -83,7 +84,12 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           children: [
             comments.isEmpty
                 ? displayEmptySection(context)
-                : buildCommentsSection(comments),
+                : CommentsSection(
+                    comments: comments,
+                    post: widget.post,
+                    onDelete: () {
+                      setState(() {});
+                    }),
             Positioned(
               left: 0,
               right: 0,
@@ -127,18 +133,6 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget buildCommentsSection(List<UserComment> comments) {
-    return ListView.builder(
-      itemCount: comments.length,
-      itemBuilder: (context, index) {
-        return CommentListTile(
-          userName: comments[index].userName,
-          comment: comments[index].comment,
-        );
-      },
     );
   }
 }

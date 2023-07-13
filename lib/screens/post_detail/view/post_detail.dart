@@ -1,14 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/common/common.dart';
+import 'package:instant_gram/core/core.dart';
 import 'package:instant_gram/models/models.dart';
+import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/post_detail/widgets/mini_comments_section.dart';
 import 'package:instant_gram/screens/post_detail/widgets/post_action_buttons.dart';
 import 'package:intl/intl.dart';
 import 'package:video_player/video_player.dart';
 
-class PostDetail extends StatefulWidget {
+import '../../home/controllers/user_post_provider.dart';
+
+class PostDetail extends ConsumerStatefulWidget {
   final Post post;
   final String tag;
 
@@ -19,10 +24,10 @@ class PostDetail extends StatefulWidget {
   });
 
   @override
-  State<PostDetail> createState() => _PostDetailState();
+  ConsumerState<PostDetail> createState() => _PostDetailState();
 }
 
-class _PostDetailState extends State<PostDetail> {
+class _PostDetailState extends ConsumerState<PostDetail> {
   VideoPlayerController? videoPlayerController;
 
   @override
@@ -54,9 +59,14 @@ class _PostDetailState extends State<PostDetail> {
             icon: const Icon(Icons.share),
           ),
           //exists if the user is the owner of the post
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.delete),
+          DeleteIcon(
+            post: widget.post,
+            onPressed: () {
+              ref.read(allPostsProvider.notifier).removePost(widget.post);
+              ref.read(userPostProvider.notifier).removePost(widget.post);
+              Navigator.of(context).pop();
+              showSnackbar(context, "Post deleted");
+            },
           ),
         ],
       ),

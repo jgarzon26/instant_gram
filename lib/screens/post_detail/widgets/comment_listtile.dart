@@ -1,23 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/common/common.dart';
+import 'package:instant_gram/models/models.dart';
 
-class CommentListTile extends StatelessWidget {
+import '../../home/controllers/all_posts_provider.dart';
+
+class CommentListTile extends ConsumerWidget {
   const CommentListTile({
     super.key,
-    required this.userName,
-    required this.comment,
+    required this.userComment,
+    required this.post,
+    required this.onDelete,
   });
 
-  final String userName, comment;
+  final UserComment userComment;
+  final Post post;
+  final VoidCallback? onDelete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-        title:
-            Text(userName, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(comment),
-        trailing: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.delete),
-        ));
+      title: Text(userComment.userName,
+          style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(userComment.comment),
+      trailing: DeleteIcon(
+          post: post,
+          onPressed: () {
+            ref
+                .read(allPostsProvider.notifier)
+                .deleteCommentFromUser(post, userComment);
+            onDelete?.call();
+          }),
+    );
   }
 }
