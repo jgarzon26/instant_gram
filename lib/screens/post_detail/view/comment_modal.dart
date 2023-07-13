@@ -56,7 +56,11 @@ class _CommentModalState extends ConsumerState<CommentModal> {
                 String userName = await ref
                     .read(authControllerProvider.notifier)
                     .getUserDetails(context)
-                    .then((user) => user.name);
+                    .then((user) {
+                  showSnackbar(context, "Comment added successfully");
+                  dismissKeyboardOnLoseFocus(context);
+                  return user.name;
+                });
                 final userComment = UserComment(
                   comment: inputCommentController.text,
                   userName: userName,
@@ -71,8 +75,6 @@ class _CommentModalState extends ConsumerState<CommentModal> {
                   });
                   widget.onCommentAdded?.call();
                   inputCommentController.clear();
-                  showSnackbar(context, "Comment added successfully");
-                  dismissKeyboardOnLoseFocus(context);
                 }
               },
               icon: const Icon(Icons.send),
@@ -83,7 +85,7 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           children: [
             comments.isEmpty
                 ? displayEmptySection(context)
-                : buildCommentsSection(comments),
+                : buildCommentsSection(comments, widget.post),
             Positioned(
               left: 0,
               right: 0,
@@ -130,13 +132,18 @@ class _CommentModalState extends ConsumerState<CommentModal> {
     );
   }
 
-  Widget buildCommentsSection(List<UserComment> comments) {
+  Widget buildCommentsSection(List<UserComment> comments, Post post) {
     return ListView.builder(
       itemCount: comments.length,
       itemBuilder: (context, index) {
         return CommentListTile(
-          userName: comments[index].userName,
-          comment: comments[index].comment,
+          userComment: comments[index],
+          post: post,
+          resetState: () {
+            setState(() {
+              comments.removeAt(index);
+            });
+          },
         );
       },
     );
