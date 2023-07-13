@@ -17,6 +17,21 @@ class _AuthController extends StateNotifier<bool> {
       : _authApi = authApi,
         super(false);
 
+  void loginWithFacebook(BuildContext context) async {
+    state = true;
+    final response = await _authApi.loginWithFacebook();
+    response.fold(
+      (l) {
+        showSnackbar(context, l);
+      },
+      (r) {
+        Navigator.pushReplacementNamed(context, '/home');
+        showSnackbar(context, "Logged in successfully");
+      },
+    );
+    state = false;
+  }
+
   void loginWithGoogle(BuildContext context) async {
     state = true;
     final response = await _authApi.loginWithGoogle();

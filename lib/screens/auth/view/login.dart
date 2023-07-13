@@ -44,7 +44,11 @@ class Login extends ConsumerWidget {
           const SizedBox(height: 20),
           buildLoginButton(
             context: context,
-            onPressed: () {},
+            onPressed: () {
+              ref
+                  .read(authControllerProvider.notifier)
+                  .loginWithFacebook(context);
+            },
             icon: const Icon(
               Icons.facebook,
               color: Color.fromARGB(255, 23, 82, 129),
