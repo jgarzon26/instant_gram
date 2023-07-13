@@ -4,7 +4,7 @@ import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
-import 'package:instant_gram/screens/post_detail/widgets/comments_section.dart';
+import 'package:instant_gram/screens/post_detail/widgets/comment_listtile.dart';
 
 class CommentModal extends ConsumerStatefulWidget {
   const CommentModal({
@@ -84,16 +84,7 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           children: [
             comments.isEmpty
                 ? displayEmptySection(context)
-<<<<<<< HEAD
-                : CommentsSection(
-                    comments: comments,
-                    post: widget.post,
-                    onDelete: () {
-                      setState(() {});
-                    }),
-=======
                 : buildCommentsSection(comments, widget.post),
->>>>>>> main
             Positioned(
               left: 0,
               right: 0,
@@ -139,8 +130,6 @@ class _CommentModalState extends ConsumerState<CommentModal> {
       ],
     );
   }
-<<<<<<< HEAD
-=======
 
   Widget buildCommentsSection(List<UserComment> comments, Post post) {
     return ListView.builder(
@@ -149,7 +138,7 @@ class _CommentModalState extends ConsumerState<CommentModal> {
         return CommentListTile(
           userComment: comments[index],
           post: post,
-          resetState: () {
+          onDelete: () {
             setState(() {
               comments.removeAt(index);
             });
@@ -158,5 +147,4 @@ class _CommentModalState extends ConsumerState<CommentModal> {
       },
     );
   }
->>>>>>> main
 }
