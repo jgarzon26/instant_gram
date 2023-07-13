@@ -17,9 +17,9 @@ class _AuthController extends StateNotifier<bool> {
       : _authApi = authApi,
         super(false);
 
-  void loginWithGoogle(BuildContext context) async {
+  void loginWithOAuth2(BuildContext context, String provider) async {
     state = true;
-    final response = await _authApi.loginWithGoogle();
+    final response = await _authApi.loginWithOAuth2(provider);
     response.fold(
       (l) {
         showSnackbar(context, l);

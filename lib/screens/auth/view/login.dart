@@ -44,7 +44,11 @@ class Login extends ConsumerWidget {
           const SizedBox(height: 20),
           buildLoginButton(
             context: context,
-            onPressed: () {},
+            onPressed: () {
+              ref
+                  .read(authControllerProvider.notifier)
+                  .loginWithOAuth2(context, 'facebook');
+            },
             icon: const Icon(
               Icons.facebook,
               color: Color.fromARGB(255, 23, 82, 129),
@@ -58,7 +62,7 @@ class Login extends ConsumerWidget {
             onPressed: () {
               ref
                   .read(authControllerProvider.notifier)
-                  .loginWithGoogle(context);
+                  .loginWithOAuth2(context, 'google');
             },
             icon: const ImageIcon(
               AssetImage('assets/icons/google_blue.png'),

@@ -12,24 +12,15 @@ class AuthApi {
   final Account _account;
   AuthApi(this._account);
 
-  Future<void> loginWithFacebook() async {
-    await _account.createOAuth2Session(
-      provider: 'facebook',
-      success: 'https://localhost:8080',
-      failure: 'https://localhost:8080',
-      scopes: ['public_profile'],
-    );
-  }
-
   Future<User> getUserDetails() async {
     final user = await _account.get();
     return user;
   }
 
-  FutureEither loginWithGoogle() async {
+  FutureEither loginWithOAuth2(String provider) async {
     try {
       final session = await _account.createOAuth2Session(
-        provider: 'google',
+        provider: provider,
       );
       return Right(session);
     } on AppwriteException catch (e) {

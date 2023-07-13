@@ -42,9 +42,19 @@ class MediaDisplay extends StatelessWidget {
     } else {
       return AspectRatio(
           aspectRatio: 4 / 3,
-          child: Image.file(
-            File(path),
-          ));
+          child: Image.file(File(path),
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+            if (wasSynchronouslyLoaded) {
+              return child;
+            } else {
+              return AnimatedOpacity(
+                opacity: frame == null ? 0 : 1,
+                duration: const Duration(seconds: 1),
+                curve: Curves.easeOut,
+                child: child,
+              );
+            }
+          }));
     }
   }
 }
