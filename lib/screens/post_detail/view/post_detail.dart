@@ -85,7 +85,7 @@ class _PostDetailState extends State<PostDetail> {
                 Row(
                   children: [
                     Text(
-                      "Owner User",
+                      widget.post.userPost.user.name,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontSize: 18,
                           ),

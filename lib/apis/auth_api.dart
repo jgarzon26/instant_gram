@@ -1,4 +1,5 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:instant_gram/core/appwrite_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,8 +21,9 @@ class AuthApi {
     );
   }
 
-  Future getUserDetails() async {
-    return _account.get();
+  Future<User> getUserDetails() async {
+    final user = await _account.get();
+    return user;
   }
 
   FutureEither loginWithGoogle() async {

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:instant_gram/apis/auth_api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +30,14 @@ class _AuthController extends StateNotifier<bool> {
       },
     );
     state = false;
+  }
+
+  Future<User> getUserDetails(BuildContext context) async {
+    state = true;
+    final user = await _authApi.getUserDetails();
+
+    state = false;
+    return user;
   }
 
   void logout(BuildContext context) async {

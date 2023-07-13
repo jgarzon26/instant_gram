@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,6 +9,9 @@ import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'dart:io' as dartio;
+
+import '../../auth/controller/auth_controller.dart';
 
 class CreatePost extends ConsumerStatefulWidget {
   final XFile media;
@@ -29,8 +31,12 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   VideoPlayerController? _videoPlayerController;
   late final TextEditingController _textEditingController;
 
+  Future<User>? _getUserDetail;
+
   bool allowLikes = true;
   bool allowComments = true;
+
+  bool hasPressedSend = false;
 
   String? thumbnail;
 
@@ -38,7 +44,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   void initState() {
     if (widget.isVideo) {
       _videoPlayerController = VideoPlayerController.file(
-        File(widget.media.path),
+        dartio.File(widget.media.path),
       )..initialize().then((value) {
           setState(() {});
         });
@@ -73,69 +79,90 @@ class _CreatePostState extends ConsumerState<CreatePost> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              UserPost post = UserPost(
-                path: widget.media.path,
-                description: _textEditingController.text,
-                allowComments: allowComments,
-                allowLikes: allowLikes,
-                postDate: DateTime.now(),
-                isVideo: widget.isVideo,
-                thumbnail: thumbnail ?? '',
-              );
-              ref.read(userPostProvider.notifier).addPost(post);
-              showSnackbar(context, "Post added successfully");
-              Navigator.pop(context);
-            },
+            onPressed: !hasPressedSend
+                ? () {
+                    setState(() {
+                      hasPressedSend = true;
+                      _getUserDetail = fetchUserName();
+                    });
+                  }
+                : null,
             icon: const Icon(
               Icons.send,
             ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            MediaDisplay(
-              path: widget.media.path,
-              isVideo: widget.isVideo,
-              videoPlayerController: _videoPlayerController,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: _textEditingController,
-                decoration: const InputDecoration(
-                    labelText: 'Please write your message here',
-                    labelStyle: TextStyle(
-                      color: Colors.white54,
-                    )),
-              ),
-            ),
-            buildAllowListTile(
-              value: allowLikes,
-              onChanged: (value) {
-                setState(() {
-                  allowLikes = value;
-                });
+      body: !hasPressedSend
+          ? buildNewPost()
+          : FutureBuilder(
+              future: _getUserDetail,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                } else {
+                  return const Center(
+                    child: Text('Error fetching username'),
+                  );
+                }
               },
-              title: 'Allow likes',
-              subtitle:
-                  'By allowing likes, users will be able to press the like button on your post.',
             ),
-            buildAllowListTile(
-              value: allowComments,
-              onChanged: (value) {
-                setState(() {
-                  allowComments = value;
-                });
-              },
-              title: 'Allow comments',
-              subtitle:
-                  'By allowing comments, users will be able to comment on your post.',
+    );
+  }
+
+  void createPost(BuildContext context, UserPost post) {
+    ref.read(userPostProvider.notifier).addPost(post);
+    showSnackbar(context, "Post added successfully");
+    Navigator.pop(context);
+  }
+
+  SingleChildScrollView buildNewPost() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          MediaDisplay(
+            path: widget.media.path,
+            isVideo: widget.isVideo,
+            videoPlayerController: _videoPlayerController,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _textEditingController,
+              decoration: const InputDecoration(
+                  labelText: 'Please write your message here',
+                  labelStyle: TextStyle(
+                    color: Colors.white54,
+                  )),
             ),
-          ],
-        ),
+          ),
+          buildAllowListTile(
+            value: allowLikes,
+            onChanged: (value) {
+              setState(() {
+                allowLikes = value;
+              });
+            },
+            title: 'Allow likes',
+            subtitle:
+                'By allowing likes, users will be able to press the like button on your post.',
+          ),
+          buildAllowListTile(
+            value: allowComments,
+            onChanged: (value) {
+              setState(() {
+                allowComments = value;
+              });
+            },
+            title: 'Allow comments',
+            subtitle:
+                'By allowing comments, users will be able to comment on your post.',
+          ),
+        ],
       ),
     );
   }
@@ -178,5 +205,25 @@ class _CreatePostState extends ConsumerState<CreatePost> {
       quality: 20,
     );
     thumbnail = thumbnailPath;
+  }
+
+  Future<User> fetchUserName() async {
+    final user = await ref
+        .read(authControllerProvider.notifier)
+        .getUserDetails(context)
+        .then((user) {
+      final post = UserPost(
+        user: user,
+        path: widget.media.path,
+        description: _textEditingController.text,
+        allowComments: allowComments,
+        allowLikes: allowLikes,
+        postDate: DateTime.now(),
+        isVideo: widget.isVideo,
+        thumbnail: thumbnail ?? '',
+      );
+      createPost(context, post);
+    });
+    return user;
   }
 }

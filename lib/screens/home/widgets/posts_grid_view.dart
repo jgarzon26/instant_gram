@@ -38,7 +38,7 @@ class PostsGridView extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (context) => PostDetail(
                           post: userPosts[index],
-                          tag: userPosts[index].userPost.id,
+                          tag: userPosts[index].userPost.postId,
                         )),
               );
             },
@@ -47,7 +47,7 @@ class PostsGridView extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 Hero(
-                  tag: userPosts[index].userPost.id,
+                  tag: userPosts[index].userPost.postId,
                   child: Image.file(
                     File(userPosts[index].userPost.thumbnail),
                     fit: BoxFit.cover,

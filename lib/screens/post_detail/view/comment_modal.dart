@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/models/models.dart';
+import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 
 import '../widgets/comment_listtile.dart';
@@ -22,7 +23,7 @@ class CommentModal extends ConsumerStatefulWidget {
 
 class _CommentModalState extends ConsumerState<CommentModal> {
   final TextEditingController inputCommentController = TextEditingController();
-  late final List<String> comments;
+  late final List<UserComment> comments;
 
   @override
   void initState() {
@@ -51,14 +52,22 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           centerTitle: true,
           actions: [
             IconButton(
-              onPressed: () {
+              onPressed: () async {
+                String userName = await ref
+                    .read(authControllerProvider.notifier)
+                    .getUserDetails(context)
+                    .then((user) => user.name);
+                final userComment = UserComment(
+                  comment: inputCommentController.text,
+                  userName: userName,
+                );
                 if (inputCommentController.text.isNotEmpty) {
                   ref.read(allPostsProvider.notifier).addCommentToUser(
                         widget.post,
-                        inputCommentController.text,
+                        userComment,
                       );
                   setState(() {
-                    comments.add(inputCommentController.text);
+                    comments.add(userComment);
                   });
                   widget.onCommentAdded?.call();
                   inputCommentController.clear();
@@ -121,13 +130,13 @@ class _CommentModalState extends ConsumerState<CommentModal> {
     );
   }
 
-  Widget buildCommentsSection(List<String> comments) {
+  Widget buildCommentsSection(List<UserComment> comments) {
     return ListView.builder(
       itemCount: comments.length,
       itemBuilder: (context, index) {
         return CommentListTile(
-          userName: "Anonymous User",
-          comment: comments[index],
+          userName: comments[index].userName,
+          comment: comments[index].comment,
         );
       },
     );

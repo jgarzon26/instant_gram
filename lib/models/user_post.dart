@@ -1,7 +1,9 @@
+import 'package:appwrite/models.dart';
 import 'package:uuid/uuid.dart';
 
 class UserPost {
-  final String id = const Uuid().v4();
+  final String postId = const Uuid().v4();
+  final User user;
   final String path, description;
   final bool allowLikes, allowComments;
   final DateTime postDate;
@@ -9,6 +11,7 @@ class UserPost {
   final String thumbnail;
 
   UserPost({
+    required this.user,
     required this.path,
     required this.description,
     required this.allowLikes,

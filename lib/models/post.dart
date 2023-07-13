@@ -1,7 +1,7 @@
-import 'package:instant_gram/models/user_post.dart';
+import 'package:instant_gram/models/models.dart';
 
 class Post {
-  List<String> comments = [];
+  List<UserComment> comments = [];
   int numberOfLikes = 0;
   UserPost userPost;
 

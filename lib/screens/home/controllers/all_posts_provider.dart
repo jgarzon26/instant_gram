@@ -18,7 +18,7 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
 
   void incrementLike(Post post) {
     state = state.map((element) {
-      if (element.userPost.id == post.userPost.id) {
+      if (element.userPost.postId == post.userPost.postId) {
         element.numberOfLikes++;
         _likes.add(element);
         return element;
@@ -30,7 +30,7 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
 
   void decrementLike(Post post) {
     state = state.map((element) {
-      if (element.userPost.id == post.userPost.id) {
+      if (element.userPost.postId == post.userPost.postId) {
         element.numberOfLikes--;
         _likes.remove(element);
         return element;
@@ -40,15 +40,16 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
     }).toList();
   }
 
-  List<String> getCommentsOfUser(Post post) {
+  List<UserComment> getCommentsOfUser(Post post) {
     return state
-        .firstWhere((element) => element.userPost.id == post.userPost.id)
+        .firstWhere(
+            (element) => element.userPost.postId == post.userPost.postId)
         .comments;
   }
 
-  void addCommentToUser(Post post, String comment) {
+  void addCommentToUser(Post post, UserComment comment) {
     state = state.map((element) {
-      if (element.userPost.id == post.userPost.id) {
+      if (element.userPost.postId == post.userPost.postId) {
         element.comments = [...element.comments, comment];
         return element;
       } else {
@@ -59,7 +60,7 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
 
   void removePost(Post post) {
     state = state
-        .where((element) => element.userPost.id != post.userPost.id)
+        .where((element) => element.userPost.postId != post.userPost.postId)
         .toList();
   }
 }

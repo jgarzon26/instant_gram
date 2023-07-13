@@ -18,7 +18,7 @@ class UserPostProvider extends StateNotifier<List<Post>> {
 
   void removePost(Post post) {
     state = state
-        .where((element) => element.userPost.id != post.userPost.id)
+        .where((element) => element.userPost.postId != post.userPost.postId)
         .toList();
   }
 }
