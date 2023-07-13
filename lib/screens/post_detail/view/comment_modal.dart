@@ -84,12 +84,16 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           children: [
             comments.isEmpty
                 ? displayEmptySection(context)
+<<<<<<< HEAD
                 : CommentsSection(
                     comments: comments,
                     post: widget.post,
                     onDelete: () {
                       setState(() {});
                     }),
+=======
+                : buildCommentsSection(comments, widget.post),
+>>>>>>> main
             Positioned(
               left: 0,
               right: 0,
@@ -135,4 +139,24 @@ class _CommentModalState extends ConsumerState<CommentModal> {
       ],
     );
   }
+<<<<<<< HEAD
+=======
+
+  Widget buildCommentsSection(List<UserComment> comments, Post post) {
+    return ListView.builder(
+      itemCount: comments.length,
+      itemBuilder: (context, index) {
+        return CommentListTile(
+          userComment: comments[index],
+          post: post,
+          resetState: () {
+            setState(() {
+              comments.removeAt(index);
+            });
+          },
+        );
+      },
+    );
+  }
+>>>>>>> main
 }
