@@ -40,13 +40,6 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
     }).toList();
   }
 
-  List<UserComment> getCommentsOfUser(Post post) {
-    return state
-        .firstWhere(
-            (element) => element.userPost.postId == post.userPost.postId)
-        .comments;
-  }
-
   void addCommentToUser(Post post, UserComment comment) {
     state = state.map((element) {
       if (element.userPost.postId == post.userPost.postId) {

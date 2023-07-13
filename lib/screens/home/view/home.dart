@@ -74,11 +74,11 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
       },
       children: [
         UserPostsPage(
-          userPosts: ref.watch(userPostProvider),
+          provider: userPostProvider,
         ),
         const SearchPage(),
         UserPostsPage(
-          userPosts: ref.watch(allPostsProvider),
+          provider: allPostsProvider,
         ),
       ],
     );

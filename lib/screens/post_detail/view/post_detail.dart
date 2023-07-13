@@ -84,7 +84,7 @@ class _PostDetailState extends ConsumerState<PostDetail> {
             allowLikes: widget.post.userPost.allowLikes,
             allowComments: widget.post.userPost.allowComments,
             post: widget.post,
-            resetState: () {
+            onLiked: () {
               setState(() {});
             },
           ),
@@ -138,7 +138,7 @@ class _PostDetailState extends ConsumerState<PostDetail> {
                 const SizedBox(height: 15),
                 widget.post.comments.isNotEmpty
                     ? MiniCommentsSection(
-                        comments: widget.post.comments,
+                        post: widget.post,
                         context: context,
                       )
                     : const SizedBox.shrink(),

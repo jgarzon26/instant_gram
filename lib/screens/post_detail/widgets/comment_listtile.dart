@@ -10,20 +10,12 @@ class CommentListTile extends ConsumerWidget {
     super.key,
     required this.userComment,
     required this.post,
-<<<<<<< HEAD
     required this.onDelete,
-=======
-    required this.resetState,
->>>>>>> main
   });
 
   final UserComment userComment;
   final Post post;
-<<<<<<< HEAD
   final VoidCallback? onDelete;
-=======
-  final VoidCallback resetState;
->>>>>>> main
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,11 +29,7 @@ class CommentListTile extends ConsumerWidget {
             ref
                 .read(allPostsProvider.notifier)
                 .deleteCommentFromUser(post, userComment);
-<<<<<<< HEAD
             onDelete?.call();
-=======
-            resetState;
->>>>>>> main
           }),
     );
   }

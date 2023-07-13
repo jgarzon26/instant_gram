@@ -11,12 +11,12 @@ class PostActionButtons extends ConsumerStatefulWidget {
     required this.allowLikes,
     required this.allowComments,
     required this.post,
-    this.resetState,
+    this.onLiked,
   });
 
   final bool allowLikes, allowComments;
   final Post post;
-  final VoidCallback? resetState;
+  final VoidCallback? onLiked;
 
   @override
   ConsumerState<PostActionButtons> createState() => _PostActionButtonsState();
@@ -46,7 +46,7 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
                 setState(() {
                   hasLiked = !hasLiked;
                 });
-                widget.resetState?.call();
+                widget.onLiked?.call();
                 hasLiked
                     ? ref
                         .read(allPostsProvider.notifier)
@@ -73,7 +73,7 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
                   builder: (_) {
                     return CommentModal(
                       post: widget.post,
-                      onCommentAdded: widget.resetState,
+                      onCommentAdded: widget.onLiked,
                     );
                   },
                 );

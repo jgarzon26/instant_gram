@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:instant_gram/models/models.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/posts_grid_view.dart';
 
-class UserPostsPage extends StatelessWidget {
-  final List<Post> userPosts;
+class UserPostsPage extends ConsumerWidget {
+  final ProviderListenable provider;
 
   const UserPostsPage({
     super.key,
-    required this.userPosts,
+    required this.provider,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userPosts = ref.watch(provider);
     return userPosts.isNotEmpty
-        ? PostsGridView(userPosts: userPosts)
+        ? PostsGridView(provider: provider)
         : displayEmptyList();
   }
 

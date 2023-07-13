@@ -23,12 +23,14 @@ class CommentModal extends ConsumerStatefulWidget {
 class _CommentModalState extends ConsumerState<CommentModal> {
   final TextEditingController inputCommentController = TextEditingController();
   late final List<UserComment> comments;
+  late final int index;
 
   @override
   void initState() {
     super.initState();
-    comments =
-        ref.read(allPostsProvider.notifier).getCommentsOfUser(widget.post);
+    final posts = ref.read(allPostsProvider);
+    index = posts.indexWhere(
+        (element) => element.userPost.postId == widget.post.userPost.postId);
   }
 
   @override
@@ -39,6 +41,7 @@ class _CommentModalState extends ConsumerState<CommentModal> {
 
   @override
   Widget build(BuildContext context) {
+    List<UserComment> comments = ref.watch(allPostsProvider)[index].comments;
     return GestureDetector(
       onTap: () => dismissKeyboardOnLoseFocus(context),
       child: Scaffold(
