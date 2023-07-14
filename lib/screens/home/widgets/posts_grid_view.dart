@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/models/models.dart';
+import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 
 import '../../post_detail/view/post_detail.dart';
 
@@ -19,6 +20,27 @@ class PostsGridView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userPosts = ref.watch(provider);
+    return (provider is UserPostProvider)
+        ? buildGridViewForUserPosts(ref)
+        : buildGridViewForAllPosts(userPosts);
+  }
+
+  Widget buildGridViewForUserPosts(WidgetRef ref) {
+    return StreamBuilder(
+        stream: ref.watch(userPostProvider.notifier).getPostsOfOwner(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final userPosts = snapshot.data as List<Post>;
+            return buildGridViewForAllPosts(userPosts);
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
+  }
+
+  Widget buildGridViewForAllPosts(userPosts) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView.builder(

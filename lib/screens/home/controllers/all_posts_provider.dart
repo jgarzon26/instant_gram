@@ -1,19 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/models/models.dart';
-import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 
 final allPostsProvider = StateNotifierProvider<AllPostsProvider, List<Post>>(
-    (ref) => AllPostsProvider(ref.watch(userPostProvider)));
+    (ref) => AllPostsProvider());
 
 class AllPostsProvider extends StateNotifier<List<Post>> {
-  AllPostsProvider(List<Post> userPosts) : super([...userPosts]);
+  AllPostsProvider() : super([]);
 
   final List<Post> _likes = [];
 
   List<Post> get likes => _likes;
 
-  void addPost(Post post) {
-    state = [...state, post];
+  void addPost(UserPost post) {
+    state = [
+      ...state,
+      Post(
+        userPost: post,
+      )
+    ];
   }
 
   void incrementLike(Post post) {

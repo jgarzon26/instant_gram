@@ -11,8 +11,6 @@ import 'package:instant_gram/screens/post_detail/widgets/post_action_buttons.dar
 import 'package:intl/intl.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../home/controllers/user_post_provider.dart';
-
 class PostDetail extends ConsumerStatefulWidget {
   final Post post;
   final String tag;
@@ -63,7 +61,6 @@ class _PostDetailState extends ConsumerState<PostDetail> {
             post: widget.post,
             onPressed: () {
               ref.read(allPostsProvider.notifier).removePost(widget.post);
-              ref.read(userPostProvider.notifier).removePost(widget.post);
               Navigator.of(context).pop();
               showSnackbar(context, "Post deleted");
             },

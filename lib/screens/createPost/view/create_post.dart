@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:instant_gram/common/common.dart';
 import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/models/models.dart';
-import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
+import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -115,7 +115,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   }
 
   void createPost(BuildContext context, UserPost post) {
-    ref.read(userPostProvider.notifier).addPost(post);
+    ref.read(allPostsProvider.notifier).addPost(post);
     showSnackbar(context, "Post added successfully");
     Navigator.pop(context);
   }
