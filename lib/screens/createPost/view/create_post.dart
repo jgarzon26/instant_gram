@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,26 +100,16 @@ class _CreatePostState extends ConsumerState<CreatePost> {
           : FutureBuilder(
               future: _getUserDetail,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                if (snapshot.hasError) {
+                  log("Error in fetching user details: ${snapshot.error}");
+                  return CreatePost(
+                      media: widget.media, isVideo: widget.isVideo);
                 } else {
-                  return const Center(
-                    child: Text('Error fetching username'),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
               },
             ),
     );
-  }
-
-  void createPost(BuildContext context, UserPost post) {
-    ref.read(allPostsProvider.notifier).addPost(post);
-    showSnackbar(context, "Post added successfully");
-    Navigator.pop(context);
   }
 
   SingleChildScrollView buildNewPost() {
@@ -208,21 +200,28 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   }
 
   Future<User> fetchUserName() async {
-    final user = await ref
-        .read(authControllerProvider.notifier)
-        .getUserDetails(context)
-        .then((user) {
-      final post = UserPost(
-        user: user,
-        path: widget.media.path,
-        description: _textEditingController.text,
-        allowComments: allowComments,
-        allowLikes: allowLikes,
-        postDate: DateTime.now(),
-        isVideo: widget.isVideo,
-        thumbnail: thumbnail ?? '',
-      );
-      createPost(context, post);
+    final user =
+        await ref.read(authControllerProvider.notifier).getUserDetails(context);
+
+    final post = Post(
+      uid: user.$id,
+      username: user.name,
+      path: widget.media.path,
+      description: _textEditingController.text,
+      allowComments: allowComments,
+      allowLikes: allowLikes,
+      postDate: DateTime.now(),
+      isVideo: widget.isVideo,
+      thumbnail: thumbnail ?? '',
+    );
+
+    final res = await ref.read(allPostsProvider.notifier).addPost(post, ref);
+    res.fold((failure) {
+      showSnackbar(context, failure.message);
+      return Future.error(failure.message);
+    }, (r) {
+      showSnackbar(context, "Post added successfully");
+      Navigator.pop(context);
     });
     return user;
   }

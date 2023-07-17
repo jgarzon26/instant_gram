@@ -1,8 +1,8 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:instant_gram/core/appwrite_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/core/core.dart';
 
 import '../core/typedefs.dart';
 
@@ -23,8 +23,8 @@ class AuthApi {
         provider: provider,
       );
       return Right(session);
-    } on AppwriteException catch (e) {
-      return Left(e.message ?? 'Something went wrong');
+    } on AppwriteException catch (e, stackTrace) {
+      return Left(Failure(e.message ?? 'Something went wrong', stackTrace));
     }
   }
 
@@ -32,8 +32,8 @@ class AuthApi {
     try {
       final session = await _account.deleteSession(sessionId: 'current');
       return Right(session);
-    } on AppwriteException catch (e) {
-      return Left(e.message ?? 'Something went wrong');
+    } on AppwriteException catch (e, stackTrace) {
+      return Left(Failure(e.message ?? 'Something went wrong', stackTrace));
     }
   }
 }

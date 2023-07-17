@@ -31,9 +31,9 @@ class _PostDetailState extends ConsumerState<PostDetail> {
   @override
   void initState() {
     super.initState();
-    if (widget.post.userPost.isVideo) {
+    if (widget.post.isVideo) {
       videoPlayerController = VideoPlayerController.file(
-        File(widget.post.userPost.path),
+        File(widget.post.path),
       )..initialize().then((value) {
           setState(() {});
         });
@@ -73,13 +73,13 @@ class _PostDetailState extends ConsumerState<PostDetail> {
             tag: widget.tag,
             child: MediaDisplay(
               videoPlayerController: videoPlayerController,
-              isVideo: widget.post.userPost.isVideo,
-              path: widget.post.userPost.path,
+              isVideo: widget.post.isVideo,
+              path: widget.post.path,
             ),
           ),
           PostActionButtons(
-            allowLikes: widget.post.userPost.allowLikes,
-            allowComments: widget.post.userPost.allowComments,
+            allowLikes: widget.post.allowLikes,
+            allowComments: widget.post.allowComments,
             post: widget.post,
             onLiked: () {
               setState(() {});
@@ -92,14 +92,15 @@ class _PostDetailState extends ConsumerState<PostDetail> {
                 Row(
                   children: [
                     Text(
-                      widget.post.userPost.user.name,
+                      //temporary
+                      widget.post.username,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontSize: 18,
                           ),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      widget.post.userPost.description,
+                      widget.post.description,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.normal,
                             fontSize: 18,
@@ -111,7 +112,7 @@ class _PostDetailState extends ConsumerState<PostDetail> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "${DateFormat.d().format(widget.post.userPost.postDate)} ${DateFormat.MMM().format(widget.post.userPost.postDate)}, ${DateFormat.y().format(widget.post.userPost.postDate)}, ${DateFormat.jm().format(widget.post.userPost.postDate)}",
+                    "${DateFormat.d().format(widget.post.postDate)} ${DateFormat.MMM().format(widget.post.postDate)}, ${DateFormat.y().format(widget.post.postDate)}, ${DateFormat.jm().format(widget.post.postDate)}",
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.normal,
                           letterSpacing: 1.2,

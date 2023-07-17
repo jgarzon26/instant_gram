@@ -12,10 +12,10 @@ class UserPostProvider extends StateNotifier<List<Post>> {
 
   UserPostProvider(List<Post> posts, this._authApi) : super(posts);
 
-  Stream<List<Post>> getPostsOfOwner() async* {
+  Future<List<Post>> getPostsOfOwner() async {
     final user = await _authApi.getUserDetails();
-    yield state.where((post) {
-      return post.userPost.user.$id == user.$id;
+    return state.where((post) {
+      return post.uid == user.$id;
     }).toList();
   }
 }

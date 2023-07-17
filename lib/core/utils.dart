@@ -5,7 +5,7 @@ void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(message, style: Theme.of(context).textTheme.bodyLarge),
-      duration: const Duration(seconds: 1),
+      duration: const Duration(seconds: 5),
       backgroundColor: kBackgroundColorLight,
     ),
   );

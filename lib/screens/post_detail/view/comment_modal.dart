@@ -29,8 +29,7 @@ class _CommentModalState extends ConsumerState<CommentModal> {
   void initState() {
     super.initState();
     final posts = ref.read(allPostsProvider);
-    index = posts.indexWhere(
-        (element) => element.userPost.postId == widget.post.userPost.postId);
+    index = posts.indexWhere((element) => element.postId == widget.post.postId);
   }
 
   @override

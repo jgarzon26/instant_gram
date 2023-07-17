@@ -13,3 +13,7 @@ final _clientProvider = Provider((ref) {
 final accountProvider = Provider((ref) {
   return Account(ref.read(_clientProvider));
 });
+
+final databaseProvider = Provider((ref) {
+  return Databases(ref.read(_clientProvider));
+});

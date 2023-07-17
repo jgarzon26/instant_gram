@@ -13,6 +13,10 @@ final authControllerProvider = StateNotifierProvider<_AuthController, bool>(
 class _AuthController extends StateNotifier<bool> {
   final AuthApi _authApi;
 
+  String? _userId;
+
+  String? get userId => _userId;
+
   _AuthController(AuthApi authApi)
       : _authApi = authApi,
         super(false);
@@ -20,11 +24,12 @@ class _AuthController extends StateNotifier<bool> {
   void loginWithOAuth2(BuildContext context, String provider) async {
     state = true;
     final response = await _authApi.loginWithOAuth2(provider);
+    _userId = await _authApi.getUserDetails().then((value) => value.$id);
     response.fold(
-      (l) {
-        showSnackbar(context, l);
+      (failure) {
+        showSnackbar(context, failure.message);
       },
-      (r) {
+      (session) {
         Navigator.pushReplacementNamed(context, '/home');
         showSnackbar(context, "Logged in successfully");
       },
@@ -44,10 +49,10 @@ class _AuthController extends StateNotifier<bool> {
     state = true;
     final response = await _authApi.logout();
     response.fold(
-      (l) {
-        showSnackbar(context, l);
+      (failure) {
+        showSnackbar(context, failure.message);
       },
-      (r) {
+      (session) {
         Navigator.pushReplacementNamed(context, '/');
         showSnackbar(context, "Logged out successfully");
       },

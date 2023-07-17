@@ -44,7 +44,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   });
                 } else {
                   List<Post> posts = allPosts
-                      .where((post) => post.userPost.description
+                      .where((post) => post.description
                           .toLowerCase()
                           .contains(value.toLowerCase()))
                       .toList();

@@ -31,7 +31,6 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
       length: bottomIcons.length,
       vsync: this,
     );
-
     super.initState();
   }
 

@@ -23,8 +23,7 @@ class DeleteIcon extends ConsumerWidget {
     return FutureBuilder(
         future: getUserDetail(ref, context),
         builder: (context, snapshot) {
-          if (snapshot.hasData &&
-              snapshot.data!.$id == post.userPost.user.$id) {
+          if (snapshot.hasData && snapshot.data!.$id == post.uid) {
             return IconButton(
               icon: const Icon(Icons.delete),
               onPressed: onPressed,

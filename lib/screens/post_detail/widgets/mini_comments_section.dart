@@ -16,8 +16,7 @@ class MiniCommentsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final posts = ref.watch(allPostsProvider);
-    final index = posts.indexWhere(
-        (element) => element.userPost.postId == post.userPost.postId);
+    final index = posts.indexWhere((element) => element.postId == post.postId);
     List<UserComment> comments = ref.watch(allPostsProvider)[index].comments;
     return ListView(
       shrinkWrap: true,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/models/models.dart';
+import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 
 import '../../post_detail/view/post_detail.dart';
@@ -19,75 +20,76 @@ class PostsGridView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userPosts = ref.watch(provider);
-    return (provider is UserPostProvider)
-        ? buildGridViewForUserPosts(ref)
-        : buildGridViewForAllPosts(userPosts);
+    if (provider is UserPostProvider) {
+      return buildPostsGridView(
+          ref.watch(userPostProvider.notifier).getPostsOfOwner());
+    } else if (provider is AllPostsProvider) {
+      ref.watch(allPostsProvider.notifier).initState(context, ref);
+      return buildPostsGridView(ref.watch(
+          allPostsFutureProvider as ProviderListenable<Future<List<Post>>>));
+    } else {
+      throw Exception("Invalid Provider or Not Implemented");
+    }
   }
 
-  Widget buildGridViewForUserPosts(WidgetRef ref) {
-    return StreamBuilder(
-        stream: ref.watch(userPostProvider.notifier).getPostsOfOwner(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final userPosts = snapshot.data as List<Post>;
-            return buildGridViewForAllPosts(userPosts);
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        });
-  }
-
-  Widget buildGridViewForAllPosts(userPosts) {
+  Widget buildPostsGridView(Future<List<Post>> userPosts) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: GridView.builder(
-        shrinkWrap: shrinkWrap,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 20,
-          crossAxisCount: 3,
-        ),
-        itemCount: userPosts.length,
-        itemBuilder: (context, index) {
-          return InkWell(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
-              if (!currentFocus.hasPrimaryFocus) {
-                currentFocus.unfocus();
-              }
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => PostDetail(
-                          post: userPosts[index],
-                          tag: userPosts[index].userPost.postId,
-                        )),
-              );
-            },
-            child: Stack(
-              alignment: Alignment.center,
-              fit: StackFit.expand,
-              children: [
-                Hero(
-                  tag: userPosts[index].userPost.postId,
-                  child: Image.file(
-                    File(userPosts[index].userPost.thumbnail),
-                    fit: BoxFit.cover,
-                  ),
+      child: FutureBuilder(
+          future: userPosts,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text("Can't load posts"));
+            } else {
+              return GridView.builder(
+                shrinkWrap: shrinkWrap,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 20,
+                  crossAxisCount: 3,
                 ),
-                if (userPosts[index].userPost.isVideo)
-                  const Icon(
-                    Icons.play_circle_outline,
-                    size: 50,
-                    color: Colors.white54,
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      FocusScopeNode currentFocus = FocusScope.of(context);
+                      if (!currentFocus.hasPrimaryFocus) {
+                        currentFocus.unfocus();
+                      }
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => PostDetail(
+                                  post: snapshot.data![index],
+                                  tag: snapshot.data![index].postId,
+                                )),
+                      );
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      fit: StackFit.expand,
+                      children: [
+                        Hero(
+                          tag: snapshot.data![index].postId,
+                          child: Image.file(
+                            File(snapshot.data![index].thumbnail),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        if (snapshot.data![index].isVideo)
+                          const Icon(
+                            Icons.play_circle_outline,
+                            size: 50,
+                            color: Colors.white54,
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }
+          }),
     );
   }
 }
@@ -125,7 +127,7 @@ class CustomPostsGridView extends ConsumerWidget {
                 MaterialPageRoute(
                     builder: (context) => PostDetail(
                           post: userPosts[index],
-                          tag: userPosts[index].userPost.postId,
+                          tag: userPosts[index].postId,
                         )),
               );
             },
@@ -134,13 +136,13 @@ class CustomPostsGridView extends ConsumerWidget {
               fit: StackFit.expand,
               children: [
                 Hero(
-                  tag: userPosts[index].userPost.postId,
+                  tag: userPosts[index].postId,
                   child: Image.file(
-                    File(userPosts[index].userPost.thumbnail),
+                    File(userPosts[index].thumbnail),
                     fit: BoxFit.cover,
                   ),
                 ),
-                if (userPosts[index].userPost.isVideo)
+                if (userPosts[index].isVideo)
                   const Icon(
                     Icons.play_circle_outline,
                     size: 50,

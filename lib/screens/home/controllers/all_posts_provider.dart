@@ -1,8 +1,16 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/apis/post_api.dart';
+import 'package:instant_gram/core/core.dart';
+import 'package:instant_gram/core/typedefs.dart';
 import 'package:instant_gram/models/models.dart';
 
 final allPostsProvider = StateNotifierProvider<AllPostsProvider, List<Post>>(
     (ref) => AllPostsProvider());
+
+final allPostsFutureProvider = FutureProvider((ref) async {
+  return ref.watch(postApiProvider).getAllPosts();
+});
 
 class AllPostsProvider extends StateNotifier<List<Post>> {
   AllPostsProvider() : super([]);
@@ -11,18 +19,29 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
 
   List<Post> get likes => _likes;
 
-  void addPost(UserPost post) {
+  void initState(BuildContext context, WidgetRef ref) async {
+    final response = await ref.watch(postApiProvider).getAllPosts();
+    response.fold((failure) {
+      showSnackbar(context, failure.message);
+    }, (posts) {
+      state = posts.documents
+          .map((document) => Post.fromMap(document.data))
+          .toList();
+    });
+  }
+
+  FutureEither<void> addPost(Post post, WidgetRef ref) async {
     state = [
       ...state,
-      Post(
-        userPost: post,
-      )
+      post,
     ];
+    final response = await ref.watch(postApiProvider).createPost(post);
+    return response;
   }
 
   void incrementLike(Post post) {
     state = state.map((element) {
-      if (element.userPost.postId == post.userPost.postId) {
+      if (element.postId == post.postId) {
         element.numberOfLikes++;
         _likes.add(element);
         return element;
@@ -34,7 +53,7 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
 
   void decrementLike(Post post) {
     state = state.map((element) {
-      if (element.userPost.postId == post.userPost.postId) {
+      if (element.postId == post.postId) {
         element.numberOfLikes--;
         _likes.remove(element);
         return element;
@@ -46,7 +65,7 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
 
   void addCommentToUser(Post post, UserComment comment) {
     state = state.map((element) {
-      if (element.userPost.postId == post.userPost.postId) {
+      if (element.postId == post.postId) {
         element.comments = [...element.comments, comment];
         return element;
       } else {
@@ -57,7 +76,7 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
 
   void deleteCommentFromUser(Post post, UserComment comment) {
     state = state.map((element) {
-      if (element.userPost.postId == post.userPost.postId) {
+      if (element.postId == post.postId) {
         element.comments = element.comments
             .where((c) => c.commentId != comment.commentId)
             .toList();
@@ -69,8 +88,6 @@ class AllPostsProvider extends StateNotifier<List<Post>> {
   }
 
   void removePost(Post post) {
-    state = state
-        .where((element) => element.userPost.postId != post.userPost.postId)
-        .toList();
+    state = state.where((element) => element.postId != post.postId).toList();
   }
 }
