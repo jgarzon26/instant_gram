@@ -4,8 +4,8 @@ import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instant_gram/apis/post_api.dart';
 import 'package:instant_gram/common/common.dart';
-import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,8 +32,6 @@ class CreatePost extends ConsumerStatefulWidget {
 class _CreatePostState extends ConsumerState<CreatePost> {
   VideoPlayerController? _videoPlayerController;
   late final TextEditingController _textEditingController;
-
-  Future<User>? _getUserDetail;
 
   bool allowLikes = true;
   bool allowComments = true;
@@ -65,6 +63,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
+    var isLoading = ref.watch(allPostsProvider);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -85,7 +84,6 @@ class _CreatePostState extends ConsumerState<CreatePost> {
                 ? () {
                     setState(() {
                       hasPressedSend = true;
-                      _getUserDetail = fetchUserName();
                     });
                   }
                 : null,
@@ -95,10 +93,10 @@ class _CreatePostState extends ConsumerState<CreatePost> {
           ),
         ],
       ),
-      body: !hasPressedSend
+      body: !isLoading
           ? buildNewPost()
           : FutureBuilder(
-              future: _getUserDetail,
+              future: createPost(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   log("Error in fetching user details: ${snapshot.error}");
@@ -199,30 +197,24 @@ class _CreatePostState extends ConsumerState<CreatePost> {
     thumbnail = thumbnailPath;
   }
 
-  Future<User> fetchUserName() async {
-    final user =
-        await ref.read(authControllerProvider.notifier).getUserDetails(context);
+  Future<void> createPost() async {
+    return ref
+        .read(authControllerProvider.notifier)
+        .getUserDetails(context)
+        .then((user) {
+      final post = Post(
+        uid: user.$id,
+        username: user.name,
+        path: widget.media.path,
+        description: _textEditingController.text,
+        allowComments: allowComments,
+        allowLikes: allowLikes,
+        postDate: DateTime.now(),
+        isVideo: widget.isVideo,
+        thumbnail: thumbnail ?? '',
+      );
 
-    final post = Post(
-      uid: user.$id,
-      username: user.name,
-      path: widget.media.path,
-      description: _textEditingController.text,
-      allowComments: allowComments,
-      allowLikes: allowLikes,
-      postDate: DateTime.now(),
-      isVideo: widget.isVideo,
-      thumbnail: thumbnail ?? '',
-    );
-
-    final res = await ref.read(allPostsProvider.notifier).addPost(post, ref);
-    res.fold((failure) {
-      showSnackbar(context, failure.message);
-      return Future.error(failure.message);
-    }, (r) {
-      showSnackbar(context, "Post added successfully");
-      Navigator.pop(context);
+      ref.read(allPostsProvider.notifier).addPost(context, ref, post);
     });
-    return user;
   }
 }

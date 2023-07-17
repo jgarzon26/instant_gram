@@ -37,11 +37,8 @@ class _AuthController extends StateNotifier<bool> {
     state = false;
   }
 
-  Future<User> getUserDetails(BuildContext context) async {
-    state = true;
+  Future<User> getUserDetails() async {
     final user = await _authApi.getUserDetails();
-
-    state = false;
     return user;
   }
 

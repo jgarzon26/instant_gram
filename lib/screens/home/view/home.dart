@@ -1,10 +1,9 @@
+import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
-import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
-import 'package:instant_gram/screens/home/controllers/user_post_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
 import 'package:instant_gram/screens/home/widgets/home_appbar.dart';
 
@@ -18,6 +17,7 @@ class Home extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   final pageController = PageController();
   late final TabController tabController;
+  late final User user;
 
   final bottomIcons = [
     Icons.person,
@@ -26,11 +26,12 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   ];
 
   @override
-  void initState() {
+  void initState() async {
     tabController = TabController(
       length: bottomIcons.length,
       vsync: this,
     );
+    user = await ref.read(authControllerProvider.notifier).getUserDetails();
     super.initState();
   }
 
@@ -72,13 +73,11 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
         dismissKeyboardOnLoseFocus(context);
       },
       children: [
-        UserPostsPage(
-          provider: userPostProvider,
+        UserPostsGridView(
+          user: user,
         ),
         const SearchPage(),
-        UserPostsPage(
-          provider: allPostsProvider,
-        ),
+        const CommonPostsGridView(),
       ],
     );
   }

@@ -1,21 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:instant_gram/apis/auth_api.dart';
+import 'package:instant_gram/apis/post_api.dart';
 import 'package:instant_gram/models/models.dart';
-import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 
-final userPostProvider = StateNotifierProvider<UserPostProvider, List<Post>>(
-    (ref) => UserPostProvider(
-        ref.watch(allPostsProvider), ref.watch(authApiProvider)));
+final userPostProvider = StateNotifierProvider<UserPostProvider, bool>(
+    (ref) => UserPostProvider(ref.watch(postApiProvider)));
 
-class UserPostProvider extends StateNotifier<List<Post>> {
-  final AuthApi _authApi;
+final getPostsOfCurrentUserProvider = FutureProvider.family((ref, String uid) {
+  final provider = ref.watch(userPostProvider.notifier);
+  return provider.getPostsOfCurrentUser(uid);
+});
 
-  UserPostProvider(List<Post> posts, this._authApi) : super(posts);
+final getLatestOfCurrentUserProvider = StreamProvider((ref) {
+  final postApi = ref.watch(postApiProvider);
+  return postApi.updateAllPosts();
+});
 
-  Future<List<Post>> getPostsOfOwner() async {
-    final user = await _authApi.getUserDetails();
-    return state.where((post) {
-      return post.uid == user.$id;
-    }).toList();
+class UserPostProvider extends StateNotifier<bool> {
+  final PostApi _postApi;
+
+  UserPostProvider(this._postApi) : super(false);
+
+  Future<List<Post>> getPostsOfCurrentUser(String uid) async {
+    final posts = await _postApi.getPostsOfCurrentUser(uid);
+    return posts.map((post) => Post.fromMap(post.data)).toList();
   }
 }

@@ -17,3 +17,7 @@ final accountProvider = Provider((ref) {
 final databaseProvider = Provider((ref) {
   return Databases(ref.read(_clientProvider));
 });
+
+final postsRealTimeProvider = Provider((ref) {
+  return Realtime(ref.read(_clientProvider));
+});

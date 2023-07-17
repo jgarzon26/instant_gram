@@ -98,7 +98,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   }
 
   Widget buildResults() {
-    return CustomPostsGridView(
+    return PostsGridView(
       userPosts: searchResults,
       shrinkWrap: true,
     );

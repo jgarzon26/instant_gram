@@ -1,93 +1,54 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/apis/post_api.dart';
 import 'package:instant_gram/core/core.dart';
-import 'package:instant_gram/core/typedefs.dart';
 import 'package:instant_gram/models/models.dart';
 
-final allPostsProvider = StateNotifierProvider<AllPostsProvider, List<Post>>(
-    (ref) => AllPostsProvider());
+final allPostsProvider = StateNotifierProvider<AllPostsProvider, bool>(
+    (ref) => AllPostsProvider(ref.watch(postApiProvider)));
 
-final allPostsFutureProvider = FutureProvider((ref) async {
-  return ref.watch(postApiProvider).getAllPosts();
+final getLatestPostsProvider = StreamProvider((ref) {
+  final allPostApi = ref.watch(postApiProvider);
+  return allPostApi.updateAllPosts();
 });
 
-class AllPostsProvider extends StateNotifier<List<Post>> {
-  AllPostsProvider() : super([]);
+final getPostsProvider = FutureProvider((ref) {
+  final provider = ref.watch(allPostsProvider.notifier);
+  return provider.getPosts();
+});
 
-  final List<Post> _likes = [];
+class AllPostsProvider extends StateNotifier<bool> {
+  final PostApi _postApi;
 
-  List<Post> get likes => _likes;
+  AllPostsProvider(this._postApi) : super(false);
 
-  void initState(BuildContext context, WidgetRef ref) async {
-    final response = await ref.watch(postApiProvider).getAllPosts();
-    response.fold((failure) {
+  void addPost(BuildContext context, WidgetRef ref, Post post) async {
+    state = true;
+    final response = await ref.watch(postApiProvider).createPost(post);
+    return response.fold((failure) {
       showSnackbar(context, failure.message);
-    }, (posts) {
-      state = posts.documents
-          .map((document) => Post.fromMap(document.data))
-          .toList();
+      state = false;
+    }, (document) {
+      showSnackbar(context, "Post added successfully");
+      Navigator.pop(context);
+      state = false;
     });
   }
 
-  FutureEither<void> addPost(Post post, WidgetRef ref) async {
-    state = [
-      ...state,
-      post,
-    ];
-    final response = await ref.watch(postApiProvider).createPost(post);
-    return response;
+  Future<List<Post>> getPosts() async {
+    state = true;
+    final posts = await _postApi.getPosts();
+    state = false;
+    return posts.map((e) => Post.fromMap(e.data)).toList();
   }
 
-  void incrementLike(Post post) {
-    state = state.map((element) {
-      if (element.postId == post.postId) {
-        element.numberOfLikes++;
-        _likes.add(element);
-        return element;
-      } else {
-        return element;
-      }
-    }).toList();
-  }
+  void incrementLike(Post post) {}
 
-  void decrementLike(Post post) {
-    state = state.map((element) {
-      if (element.postId == post.postId) {
-        element.numberOfLikes--;
-        _likes.remove(element);
-        return element;
-      } else {
-        return element;
-      }
-    }).toList();
-  }
+  void decrementLike(Post post) {}
 
-  void addCommentToUser(Post post, UserComment comment) {
-    state = state.map((element) {
-      if (element.postId == post.postId) {
-        element.comments = [...element.comments, comment];
-        return element;
-      } else {
-        return element;
-      }
-    }).toList();
-  }
+  void addCommentToUser(Post post, UserComment comment) {}
 
-  void deleteCommentFromUser(Post post, UserComment comment) {
-    state = state.map((element) {
-      if (element.postId == post.postId) {
-        element.comments = element.comments
-            .where((c) => c.commentId != comment.commentId)
-            .toList();
-        return element;
-      } else {
-        return element;
-      }
-    }).toList();
-  }
+  void deleteCommentFromUser(Post post, UserComment comment) {}
 
-  void removePost(Post post) {
-    state = state.where((element) => element.postId != post.postId).toList();
-  }
+  void removePost(Post post) {}
 }
