@@ -26,6 +26,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLoading = ref.watch(allPostsProvider);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -36,8 +37,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             ),
             child: TextField(
               controller: searchController,
-              onChanged: (value) {
-                List<Post> allPosts = ref.read(allPostsProvider);
+              onChanged: (value) async {
+                List<Post> allPosts =
+                    await ref.read(allPostsProvider.notifier).getPosts();
                 if (value.isEmpty) {
                   setState(() {
                     searchResults = [];
@@ -62,7 +64,13 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               ),
             ),
           ),
-          searchResults.isEmpty ? buildEmptyResult(context) : buildResults(),
+          !isLoading
+              ? searchResults.isEmpty
+                  ? buildEmptyResult(context)
+                  : buildResults()
+              : const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
         ],
       ),
     );

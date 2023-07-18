@@ -28,13 +28,13 @@ class _AuthController extends StateNotifier<bool> {
     response.fold(
       (failure) {
         showSnackbar(context, failure.message);
+        state = false;
       },
       (session) {
+        state = false;
         Navigator.pushReplacementNamed(context, '/home');
-        showSnackbar(context, "Logged in successfully");
       },
     );
-    state = false;
   }
 
   Future<User> getUserDetails() async {

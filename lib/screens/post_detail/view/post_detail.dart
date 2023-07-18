@@ -81,9 +81,6 @@ class _PostDetailState extends ConsumerState<PostDetail> {
             allowLikes: widget.post.allowLikes,
             allowComments: widget.post.allowComments,
             post: widget.post,
-            onLiked: () {
-              setState(() {});
-            },
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -92,7 +89,6 @@ class _PostDetailState extends ConsumerState<PostDetail> {
                 Row(
                   children: [
                     Text(
-                      //temporary
                       widget.post.username,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontSize: 18,
@@ -136,8 +132,7 @@ class _PostDetailState extends ConsumerState<PostDetail> {
                 const SizedBox(height: 15),
                 widget.post.comments.isNotEmpty
                     ? MiniCommentsSection(
-                        post: widget.post,
-                        context: context,
+                        comments: widget.post.comments,
                       )
                     : const SizedBox.shrink(),
               ],

@@ -17,11 +17,11 @@ class CommonPostsGridView extends ConsumerWidget {
             return ref.watch(getLatestPostsProvider).when(
                   data: (data) {
                     if (data.events.contains(
-                      'databases.*.collections.${Appwrite.collectionId}.documents.*.create',
+                      'databases.*.collections.${Appwrite.postDetailscollectionId}.documents.*.create',
                     )) {
                       posts.insert(0, Post.fromMap(data.payload));
                     } else if (data.events.contains(
-                      'databases.*.collections.${Appwrite.collectionId}.documents.*.update',
+                      'databases.*.collections.${Appwrite.postDetailscollectionId}.documents.*.update',
                     )) {
                       final startPoint =
                           data.events[0].lastIndexOf('documents.');

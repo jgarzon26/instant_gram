@@ -10,11 +10,9 @@ class CommentModal extends ConsumerStatefulWidget {
   const CommentModal({
     super.key,
     required this.post,
-    this.onCommentAdded,
   });
 
   final Post post;
-  final VoidCallback? onCommentAdded;
 
   @override
   ConsumerState<CommentModal> createState() => _CommentModalState();
@@ -22,14 +20,10 @@ class CommentModal extends ConsumerStatefulWidget {
 
 class _CommentModalState extends ConsumerState<CommentModal> {
   final TextEditingController inputCommentController = TextEditingController();
-  late final List<UserComment> comments;
-  late final int index;
 
   @override
   void initState() {
     super.initState();
-    final posts = ref.read(allPostsProvider);
-    index = posts.indexWhere((element) => element.postId == widget.post.postId);
   }
 
   @override
@@ -40,7 +34,6 @@ class _CommentModalState extends ConsumerState<CommentModal> {
 
   @override
   Widget build(BuildContext context) {
-    List<UserComment> comments = ref.watch(allPostsProvider)[index].comments;
     return GestureDetector(
       onTap: () => dismissKeyboardOnLoseFocus(context),
       child: Scaffold(
@@ -54,29 +47,17 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           actions: [
             IconButton(
               onPressed: () async {
-                String userName = await ref
+                await ref
                     .read(authControllerProvider.notifier)
-                    .getUserDetails(context)
+                    .getUserDetails()
                     .then((user) {
-                  showSnackbar(context, "Comment added successfully");
-                  dismissKeyboardOnLoseFocus(context);
-                  return user.name;
+                  final userComment = UserComment(
+                    comment: inputCommentController.text,
+                    userName: user.name,
+                  );
+                  ref.watch(allPostsProvider.notifier).addCommentsOfPost(
+                      context, ref, userComment, widget.post);
                 });
-                final userComment = UserComment(
-                  comment: inputCommentController.text,
-                  userName: userName,
-                );
-                if (inputCommentController.text.isNotEmpty) {
-                  ref.read(allPostsProvider.notifier).addCommentToUser(
-                        widget.post,
-                        userComment,
-                      );
-                  setState(() {
-                    comments.add(userComment);
-                  });
-                  widget.onCommentAdded?.call();
-                  inputCommentController.clear();
-                }
               },
               icon: const Icon(Icons.send),
             ),
@@ -84,9 +65,7 @@ class _CommentModalState extends ConsumerState<CommentModal> {
         ),
         body: Stack(
           children: [
-            comments.isEmpty
-                ? displayEmptySection(context)
-                : buildCommentsSection(comments, widget.post),
+            buildCommentsSection(widget.post),
             Positioned(
               left: 0,
               right: 0,
@@ -133,20 +112,32 @@ class _CommentModalState extends ConsumerState<CommentModal> {
     );
   }
 
-  Widget buildCommentsSection(List<UserComment> comments, Post post) {
-    return ListView.builder(
-      itemCount: comments.length,
-      itemBuilder: (context, index) {
-        return CommentListTile(
-          userComment: comments[index],
-          post: post,
-          onDelete: () {
-            setState(() {
-              comments.removeAt(index);
-            });
+  Widget buildCommentsSection(Post post) {
+    return ref.watch(getLatestPostsProvider).when(
+          data: (data) {
+            return ref.watch(getCommentsProvider(post)).when(
+                  data: (post) {
+                    return post.comments.isEmpty
+                        ? displayEmptySection(context)
+                        : ListView.builder(
+                            itemCount: post.comments.length,
+                            itemBuilder: (context, index) {
+                              return CommentListTile(
+                                userComment: post.comments[index],
+                                post: post,
+                              );
+                            },
+                          );
+                  },
+                  error: (e, st) =>
+                      const Center(child: Text('Something went wrong')),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator.adaptive()),
+                );
           },
+          error: (e, st) => const Center(child: Text('Something went wrong')),
+          loading: () =>
+              const Center(child: CircularProgressIndicator.adaptive()),
         );
-      },
-    );
   }
 }

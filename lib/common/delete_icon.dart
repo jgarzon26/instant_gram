@@ -1,4 +1,3 @@
-import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,9 +8,7 @@ class DeleteIcon extends ConsumerWidget {
   final Post post;
   final VoidCallback? onPressed;
 
-  Future<User>? _details;
-
-  DeleteIcon({
+  const DeleteIcon({
     super.key,
     required this.post,
     this.onPressed,
@@ -19,9 +16,8 @@ class DeleteIcon extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    _details ??= getUserDetail(ref, context);
     return FutureBuilder(
-        future: getUserDetail(ref, context),
+        future: ref.watch(authControllerProvider.notifier).getUserDetails(),
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data!.$id == post.uid) {
             return IconButton(
@@ -32,9 +28,5 @@ class DeleteIcon extends ConsumerWidget {
             return const SizedBox.shrink();
           }
         });
-  }
-
-  Future<User> getUserDetail(WidgetRef ref, BuildContext context) async {
-    return ref.read(authControllerProvider.notifier).getUserDetails(context);
   }
 }

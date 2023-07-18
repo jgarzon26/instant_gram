@@ -3,12 +3,11 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:instant_gram/models/models.dart';
 
 class Post {
-  final String postId = const Uuid().v4();
+  final String postId;
   final String uid;
   final String username;
   final String path;
@@ -22,6 +21,7 @@ class Post {
   int numberOfLikes;
 
   Post({
+    required this.postId,
     required this.uid,
     required this.username,
     required this.path,
@@ -36,6 +36,7 @@ class Post {
   });
 
   Post copyWith({
+    String? postId,
     String? uid,
     String? username,
     String? path,
@@ -49,6 +50,7 @@ class Post {
     int? numberOfLikes,
   }) {
     return Post(
+      postId: postId ?? this.postId,
       uid: uid ?? this.uid,
       username: username ?? this.username,
       path: path ?? this.path,
@@ -84,6 +86,7 @@ class Post {
 
   factory Post.fromMap(Map<String, dynamic> map) {
     return Post(
+      postId: map['postId'] ?? '',
       uid: map['\$uid'] ?? '',
       username: map['username'] ?? '',
       path: map['path'] ?? '',

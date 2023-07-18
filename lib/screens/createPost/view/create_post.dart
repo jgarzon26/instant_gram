@@ -1,10 +1,9 @@
 import 'dart:developer';
 
-import 'package:appwrite/models.dart';
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:instant_gram/apis/post_api.dart';
 import 'package:instant_gram/common/common.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
@@ -200,9 +199,10 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   Future<void> createPost() async {
     return ref
         .read(authControllerProvider.notifier)
-        .getUserDetails(context)
+        .getUserDetails()
         .then((user) {
       final post = Post(
+        postId: ID.unique(),
         uid: user.$id,
         username: user.name,
         path: widget.media.path,

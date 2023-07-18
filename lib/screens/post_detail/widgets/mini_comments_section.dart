@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/models/models.dart';
-import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 
-class MiniCommentsSection extends ConsumerWidget {
+class MiniCommentsSection extends StatelessWidget {
   const MiniCommentsSection({
     super.key,
-    required this.context,
-    required this.post,
+    required this.comments,
   });
 
-  final BuildContext context;
-  final Post post;
+  final List<UserComment> comments;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final posts = ref.watch(allPostsProvider);
-    final index = posts.indexWhere((element) => element.postId == post.postId);
-    List<UserComment> comments = ref.watch(allPostsProvider)[index].comments;
+  Widget build(BuildContext context) {
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),

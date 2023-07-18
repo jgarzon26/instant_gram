@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:instant_gram/core/utils.dart';
 import 'package:instant_gram/screens/auth/controller/auth_controller.dart';
+import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
 import 'package:instant_gram/screens/home/widgets/home_appbar.dart';
 
@@ -31,7 +32,15 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
       length: bottomIcons.length,
       vsync: this,
     );
-    user = await ref.read(authControllerProvider.notifier).getUserDetails();
+    user = await ref
+        .read(authControllerProvider.notifier)
+        .getUserDetails()
+        .then((value) {
+      ref
+          .read(allPostsProvider.notifier)
+          .addLikedPostToListOfCurrentUser(context, value.$id);
+      return user;
+    });
     super.initState();
   }
 
