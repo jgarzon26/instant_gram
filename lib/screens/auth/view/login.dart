@@ -47,7 +47,7 @@ class Login extends ConsumerWidget {
             onPressed: () {
               ref
                   .read(authControllerProvider.notifier)
-                  .loginWithOAuth2(context, 'facebook');
+                  .loginWithOAuth2(context, ref, 'facebook');
             },
             icon: const Icon(
               Icons.facebook,
@@ -62,7 +62,7 @@ class Login extends ConsumerWidget {
             onPressed: () {
               ref
                   .read(authControllerProvider.notifier)
-                  .loginWithOAuth2(context, 'google');
+                  .loginWithOAuth2(context, ref, 'google');
             },
             icon: const ImageIcon(
               AssetImage('assets/icons/google_blue.png'),

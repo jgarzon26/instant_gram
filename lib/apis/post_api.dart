@@ -56,7 +56,9 @@ class PostApi {
 
   Stream<RealtimeMessage> updateAllPosts() {
     return _realTime.subscribe([
-      'databases.${Appwrite.databaseId}.collections.${Appwrite.postDetailscollectionId}.documents'
+      'databases.${Appwrite.databaseId}.collections.${Appwrite.postDetailscollectionId}.documents',
+      'collections.${Appwrite.postDetailscollectionId}.documents',
+      'documents',
     ]).stream;
   }
 

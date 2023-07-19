@@ -12,10 +12,10 @@ class CommonPostsGridView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(getPostsProvider).when(
-          data: (posts) {
-            return ref.watch(getLatestPostsProvider).when(
-                  data: (data) {
+    return ref.watch(getLatestPostsProvider).when(
+          data: (data) {
+            return ref.watch(getPostsProvider).when(
+                  data: (posts) {
                     if (data.events.contains(
                       'databases.*.collections.${Appwrite.postDetailscollectionId}.documents.*.create',
                     )) {
@@ -44,12 +44,15 @@ class CommonPostsGridView extends ConsumerWidget {
                   },
                   error: (error, stackTrace) =>
                       Center(child: Text(error.toString())),
-                  loading: () => PostsGridView(userPosts: posts),
+                  loading: () => const Center(
+                      child: /*CircularProgressIndicator.adaptive()*/
+                          Text("Post loading")),
                 );
           },
           error: (error, stackTrace) => Center(child: Text(error.toString())),
-          loading: () =>
-              const Center(child: CircularProgressIndicator.adaptive()),
+          loading: () => const Center(
+              child: /*CircularProgressIndicator.adaptive()*/
+                  Text("Stream loading")),
         );
   }
 }

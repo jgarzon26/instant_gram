@@ -99,7 +99,11 @@ class AllPostsProvider extends StateNotifier<bool> {
     );
   }
 
-  void addLikedPostToListOfCurrentUser(BuildContext context, String uid) async {
+  void addLikedPostToListOfCurrentUser(
+    BuildContext context,
+    WidgetRef ref,
+    String uid,
+  ) async {
     final response =
         await _postApi.addLikedPostToListOfCurrentUser(LikedPostsOfCurrentUser(
       uid: uid,
@@ -108,14 +112,26 @@ class AllPostsProvider extends StateNotifier<bool> {
 
     response.fold(
       (failure) {
-        showSnackbar(context, 'Something went wrong');
-        Navigator.pop(context);
+        if (failure.message.toLowerCase().contains("exist")) {
+          showSnackbar(context, "Logged in successfully");
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          showSnackbar(context, failure.message);
+        }
       },
       (document) {
         showSnackbar(context, "Logged in successfully");
+        Navigator.pushReplacementNamed(context, '/home');
       },
     );
   }
+
+  /* Future<List<LikedPostsOfCurrentUser>> _getListOfLikedPostsOfAllUsers() async {
+    final documents = await _postApi.getListOfLikedPostsOfAllUsers();
+    return documents
+        .map((e) => LikedPostsOfCurrentUser.fromMap(e.data))
+        .toList();
+  } */
 
   Future<LikedPostsOfCurrentUser> getListOfLikedPostsOfCurrentUser(
     String uid,
