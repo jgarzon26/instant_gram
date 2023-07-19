@@ -136,6 +136,15 @@ class PostApi {
     return document;
   }
 
+  Future<List<Document>> getListOfLikedPostsOfAllUsers() async {
+    final documents = await _database.listDocuments(
+      databaseId: Appwrite.databaseId,
+      collectionId: Appwrite.likedPostsCollectionId,
+    );
+
+    return documents.documents;
+  }
+
   FutureEither<Document> updateListOfLikedPostsOfCurrentUser(
       LikedPostsOfCurrentUser likedPosts) async {
     try {

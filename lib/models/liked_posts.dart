@@ -11,7 +11,6 @@ class LikedPostsOfCurrentUser {
   });
 
   LikedPostsOfCurrentUser copyWith({
-    String? postId,
     String? uid,
     List<String>? listofPostId,
   }) {
