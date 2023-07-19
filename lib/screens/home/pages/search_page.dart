@@ -28,6 +28,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   Widget build(BuildContext context) {
     bool isLoading = ref.watch(allPostsProvider);
     return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         children: [
           Padding(
@@ -58,7 +60,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               decoration: InputDecoration(
                 hintText: "Enter your search term here",
                 suffixIcon: IconButton(
-                  onPressed: () => searchController.clear(),
+                  onPressed: () {
+                    setState(() {
+                      searchController.clear();
+                      searchResults.clear();
+                    });
+                  },
                   icon: const Icon(Icons.clear),
                 ),
               ),
