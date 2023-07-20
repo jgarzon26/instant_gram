@@ -41,7 +41,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               controller: searchController,
               onChanged: (value) async {
                 List<Post> allPosts =
-                    await ref.read(allPostsProvider.notifier).getPosts();
+                    await ref.watch(allPostsProvider.notifier).getPosts();
                 if (value.isEmpty) {
                   setState(() {
                     searchResults = [];

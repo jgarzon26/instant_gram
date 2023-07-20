@@ -23,19 +23,31 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
   bool hasLiked = false;
 
   @override
-  void initState() async {
-    final listOfLikedPostsOfCurrentUser = await ref
-        .read(allPostsProvider.notifier)
-        .getListOfLikedPostsOfCurrentUser(widget.post.uid);
-    if (listOfLikedPostsOfCurrentUser.listofPostId
-        .contains(widget.post.postId)) {
-      hasLiked = true;
-    }
+  void initState() {
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    return ref
+        .watch(getListOfLikedPostsOfCurrentUserProvider(widget.post.uid))
+        .when(
+      data: (posts) {
+        if (posts.listofPostId.contains(widget.post.postId)) {
+          hasLiked = true;
+        }
+        return buildActionButtons(context);
+      },
+      error: (e, st) {
+        return Text(e.toString());
+      },
+      loading: () {
+        return buildActionButtons(context);
+      },
+    );
+  }
+
+  SizedBox buildActionButtons(BuildContext context) {
     return SizedBox(
       height: (widget.allowLikes == false && widget.allowComments == false)
           ? MediaQuery.of(context).size.height * 0.05

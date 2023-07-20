@@ -31,7 +31,7 @@ class LikedPostsOfCurrentUser {
 
   factory LikedPostsOfCurrentUser.fromMap(Map<String, dynamic> map) {
     return LikedPostsOfCurrentUser(
-      uid: map['\$uid'] ?? '',
+      uid: map['uid'] ?? '',
       listofPostId: List<String>.from(map['posts']),
     );
   }

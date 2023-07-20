@@ -9,12 +9,13 @@ class Login extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool isLoading = ref.watch(authControllerProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Instant-gram!'),
         centerTitle: true,
       ),
-      body: (ref.watch(authControllerProvider))
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : buildLoginBody(context, ref),
     );

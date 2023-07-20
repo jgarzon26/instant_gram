@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:io';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:instant_gram/common/common.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:io' as dartio;
@@ -35,8 +36,6 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   bool allowLikes = true;
   bool allowComments = true;
 
-  bool hasPressedSend = false;
-
   String? thumbnail;
 
   @override
@@ -63,6 +62,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   @override
   Widget build(BuildContext context) {
     var isLoading = ref.watch(allPostsProvider);
+    bool hasPressedSend = !isLoading;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -79,11 +79,12 @@ class _CreatePostState extends ConsumerState<CreatePost> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: !hasPressedSend
+            onPressed: hasPressedSend
                 ? () {
                     setState(() {
                       hasPressedSend = true;
                     });
+                    createPost();
                   }
                 : null,
             icon: const Icon(
@@ -94,18 +95,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
       ),
       body: !isLoading
           ? buildNewPost()
-          : FutureBuilder(
-              future: createPost(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  log("Error in fetching user details: ${snapshot.error}");
-                  return CreatePost(
-                      media: widget.media, isVideo: widget.isVideo);
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -202,10 +192,10 @@ class _CreatePostState extends ConsumerState<CreatePost> {
         .getUserDetails()
         .then((user) {
       final post = Post(
-        postId: ID.unique(),
+        postId: const Uuid().v4(),
         uid: user.$id,
         username: user.name,
-        path: widget.media.path,
+        media: File(widget.media.path),
         description: _textEditingController.text,
         allowComments: allowComments,
         allowLikes: allowLikes,

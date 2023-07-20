@@ -21,3 +21,7 @@ final databaseProvider = Provider((ref) {
 final postsRealTimeProvider = Provider((ref) {
   return Realtime(ref.read(_clientProvider));
 });
+
+final storageProvider = Provider((ref) {
+  return Storage(ref.read(_clientProvider));
+});

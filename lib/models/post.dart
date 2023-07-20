@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
@@ -10,7 +11,7 @@ class Post {
   final String postId;
   final String uid;
   final String username;
-  final String path;
+  final File media;
   final String description;
   final bool allowLikes;
   final bool allowComments;
@@ -24,7 +25,7 @@ class Post {
     required this.postId,
     required this.uid,
     required this.username,
-    required this.path,
+    required this.media,
     required this.description,
     required this.allowLikes,
     required this.allowComments,
@@ -39,7 +40,7 @@ class Post {
     String? postId,
     String? uid,
     String? username,
-    String? path,
+    File? media,
     String? description,
     bool? allowLikes,
     bool? allowComments,
@@ -53,7 +54,7 @@ class Post {
       postId: postId ?? this.postId,
       uid: uid ?? this.uid,
       username: username ?? this.username,
-      path: path ?? this.path,
+      media: media ?? this.media,
       description: description ?? this.description,
       allowLikes: allowLikes ?? this.allowLikes,
       allowComments: allowComments ?? this.allowComments,
@@ -71,7 +72,7 @@ class Post {
     result.addAll({'postId': postId});
     result.addAll({'uid': uid});
     result.addAll({'username': username});
-    result.addAll({'path': path});
+    result.addAll({'path': media.path});
     result.addAll({'description': description});
     result.addAll({'allowLikes': allowLikes});
     result.addAll({'allowComments': allowComments});
@@ -87,9 +88,9 @@ class Post {
   factory Post.fromMap(Map<String, dynamic> map) {
     return Post(
       postId: map['postId'] ?? '',
-      uid: map['\$uid'] ?? '',
+      uid: map['uid'] ?? '',
       username: map['username'] ?? '',
-      path: map['path'] ?? '',
+      media: File(map['path']),
       description: map['description'] ?? '',
       allowLikes: map['allowLikes'] ?? false,
       allowComments: map['allowComments'] ?? false,
@@ -104,7 +105,7 @@ class Post {
 
   @override
   String toString() {
-    return 'Post(uid: $uid, username: $username, path: $path, description: $description, allowLikes: $allowLikes, allowComments: $allowComments, postDate: $postDate, isVideo: $isVideo, thumbnail: $thumbnail, comments: $comments, numberOfLikes: $numberOfLikes)';
+    return 'Post(uid: $uid, username: $username, media: $media, description: $description, allowLikes: $allowLikes, allowComments: $allowComments, postDate: $postDate, isVideo: $isVideo, thumbnail: $thumbnail, comments: $comments, numberOfLikes: $numberOfLikes)';
   }
 
   @override
@@ -114,7 +115,7 @@ class Post {
     return other is Post &&
         other.uid == uid &&
         other.username == username &&
-        other.path == path &&
+        other.media == media &&
         other.description == description &&
         other.allowLikes == allowLikes &&
         other.allowComments == allowComments &&
@@ -129,7 +130,7 @@ class Post {
   int get hashCode {
     return uid.hashCode ^
         username.hashCode ^
-        path.hashCode ^
+        media.hashCode ^
         description.hashCode ^
         allowLikes.hashCode ^
         allowComments.hashCode ^

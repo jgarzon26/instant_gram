@@ -54,12 +54,26 @@ class PostApi {
     return documents.documents;
   }
 
-  Stream<RealtimeMessage> updateAllPosts() {
+  Stream<RealtimeMessage> getLatestPosts() {
     return _realTime.subscribe([
       'databases.${Appwrite.databaseId}.collections.${Appwrite.postDetailscollectionId}.documents',
       'collections.${Appwrite.postDetailscollectionId}.documents',
       'documents',
     ]).stream;
+  }
+
+  FutureEither deletePost(Post post) async {
+    try {
+      final document = _database.deleteDocument(
+        databaseId: Appwrite.databaseId,
+        collectionId: Appwrite.postDetailscollectionId,
+        documentId: post.postId,
+      );
+
+      return Right(document);
+    } on AppwriteException catch (e, st) {
+      return Left(Failure(e.message ?? 'Something went wrong', st));
+    }
   }
 
   //comments

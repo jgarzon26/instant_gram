@@ -7,11 +7,13 @@ import 'package:instant_gram/screens/post_detail/view/post_detail.dart';
 class PostsGridView extends StatelessWidget {
   final List<Post> userPosts;
   final bool shrinkWrap;
+  final VoidCallback? onPostSelected;
 
   const PostsGridView({
     super.key,
     required this.userPosts,
     this.shrinkWrap = false,
+    this.onPostSelected,
   });
 
   @override
@@ -31,6 +33,9 @@ class PostsGridView extends StatelessWidget {
             FocusScopeNode currentFocus = FocusScope.of(context);
             if (!currentFocus.hasPrimaryFocus) {
               currentFocus.unfocus();
+            }
+            if (onPostSelected != null) {
+              onPostSelected!();
             }
             Navigator.of(context).push(
               MaterialPageRoute(
