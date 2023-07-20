@@ -60,7 +60,9 @@ class AllPostsProvider extends StateNotifier<bool> {
   }
 
   Future<List<Post>> getPosts() async {
+    state = true;
     final posts = await _postApi.getPosts();
+    state = false;
     return posts.map((post) => Post.fromMap(post.data)).toList();
   }
 
