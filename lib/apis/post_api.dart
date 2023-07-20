@@ -169,7 +169,7 @@ class PostApi {
         collectionId: Appwrite.likedPostsCollectionId,
         documentId: likedPosts.uid,
         data: {
-          'posts': likedPosts.listofPostId,
+          'posts': likedPosts.posts,
         },
       );
       return Right(document);

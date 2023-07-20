@@ -47,7 +47,6 @@ class _PostDetailState extends ConsumerState<PostDetail> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLoading = ref.watch(allPostsProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Post Details"),
@@ -62,90 +61,84 @@ class _PostDetailState extends ConsumerState<PostDetail> {
             onPressed: () {
               ref
                   .read(allPostsProvider.notifier)
-                  .removePost(context, widget.post);
+                  .removePost(context, ref, widget.post);
             },
           ),
         ],
       ),
-      body: isLoading
-          ? const CircularProgressIndicator.adaptive()
-          : Column(
+      body: Column(
+        children: [
+          Hero(
+            tag: widget.tag,
+            child: MediaDisplay(
+              videoPlayerController: videoPlayerController,
+              isVideo: widget.post.isVideo,
+              path: widget.post.media.path,
+            ),
+          ),
+          PostActionButtons(
+            allowLikes: widget.post.allowLikes,
+            allowComments: widget.post.allowComments,
+            post: widget.post,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
               children: [
-                Hero(
-                  tag: widget.tag,
-                  child: MediaDisplay(
-                    videoPlayerController: videoPlayerController,
-                    isVideo: widget.post.isVideo,
-                    path: widget.post.media.path,
+                Row(
+                  children: [
+                    Text(
+                      widget.post.username,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            fontSize: 18,
+                          ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.post.description,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 18,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "${DateFormat.d().format(widget.post.postDate)} ${DateFormat.MMM().format(widget.post.postDate)}, ${DateFormat.y().format(widget.post.postDate)}, ${DateFormat.jm().format(widget.post.postDate)}",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.normal,
+                          letterSpacing: 1.2,
+                        ),
                   ),
                 ),
-                PostActionButtons(
-                  allowLikes: widget.post.allowLikes,
-                  allowComments: widget.post.allowComments,
-                  post: widget.post,
+                const Divider(
+                  height: 60,
+                  thickness: 3,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            widget.post.username,
-                            style:
-                                Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontSize: 18,
-                                    ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            widget.post.description,
-                            style:
-                                Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 18,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "${DateFormat.d().format(widget.post.postDate)} ${DateFormat.MMM().format(widget.post.postDate)}, ${DateFormat.y().format(widget.post.postDate)}, ${DateFormat.jm().format(widget.post.postDate)}",
-                          style:
-                              Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                    fontWeight: FontWeight.normal,
-                                    letterSpacing: 1.2,
-                                  ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "${widget.post.numberOfLikes} ${changePerson()} liked this",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.normal,
+                          letterSpacing: 1.2,
                         ),
-                      ),
-                      const Divider(
-                        height: 60,
-                        thickness: 3,
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "${widget.post.numberOfLikes} ${changePerson()} liked this",
-                          style:
-                              Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                    fontWeight: FontWeight.normal,
-                                    letterSpacing: 1.2,
-                                  ),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      widget.post.comments.isNotEmpty
-                          ? MiniCommentsSection(
-                              comments: widget.post.comments,
-                            )
-                          : const SizedBox.shrink(),
-                    ],
                   ),
                 ),
+                const SizedBox(height: 15),
+                widget.post.comments.isNotEmpty
+                    ? MiniCommentsSection(
+                        comments: widget.post.comments,
+                      )
+                    : const SizedBox.shrink(),
               ],
             ),
+          ),
+        ],
+      ),
     );
   }
 

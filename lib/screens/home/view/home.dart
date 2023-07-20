@@ -1,4 +1,3 @@
-import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,7 +15,6 @@ class Home extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   final pageController = PageController();
   late final TabController tabController;
-  late final User user;
 
   final bottomIcons = [
     Icons.person,

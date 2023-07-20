@@ -33,16 +33,16 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
         .watch(getListOfLikedPostsOfCurrentUserProvider(widget.post.uid))
         .when(
       data: (posts) {
-        if (posts.listofPostId.contains(widget.post.postId)) {
+        if (posts.posts.contains(widget.post.postId)) {
           hasLiked = true;
         }
         return buildActionButtons(context);
       },
       error: (e, st) {
-        return Text(e.toString());
+        return const SizedBox.shrink();
       },
       loading: () {
-        return buildActionButtons(context);
+        return const SizedBox.shrink();
       },
     );
   }

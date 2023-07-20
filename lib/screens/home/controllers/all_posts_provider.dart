@@ -1,6 +1,8 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:instant_gram/apis/post_api.dart';
+import 'package:instant_gram/apis/storage_api.dart';
 import 'package:instant_gram/core/core.dart';
 import 'package:instant_gram/models/liked_posts.dart';
 import 'package:instant_gram/models/models.dart';
@@ -8,19 +10,25 @@ import 'package:instant_gram/models/models.dart';
 final allPostsProvider = StateNotifierProvider<AllPostsProvider, bool>(
     (ref) => AllPostsProvider(ref.watch(postApiProvider)));
 
-final getLatestPostsProvider = StreamProvider((ref) {
-  final allPostApi = ref.watch(postApiProvider);
-  return allPostApi.updateAllPosts();
-});
-
 final getPostsProvider = FutureProvider((ref) {
   final provider = ref.watch(allPostsProvider.notifier);
   return provider.getPosts();
 });
 
+final getLatestPostsProvider = StreamProvider((ref) {
+  final allPostApi = ref.watch(allPostsProvider.notifier);
+  return allPostApi.getLatestPosts();
+});
+
 final getCommentsProvider = FutureProvider.family((ref, Post post) {
   final provider = ref.watch(allPostsProvider.notifier);
   return provider.getCommentOfPost(post);
+});
+
+final getListOfLikedPostsOfCurrentUserProvider =
+    FutureProvider.family((ref, String uid) {
+  final provider = ref.watch(allPostsProvider.notifier);
+  return provider.getListOfLikedPostsOfCurrentUser(uid);
 });
 
 class AllPostsProvider extends StateNotifier<bool> {
@@ -30,37 +38,63 @@ class AllPostsProvider extends StateNotifier<bool> {
 
   //Posts
 
-  void addPost(BuildContext context, WidgetRef ref, Post post) async {
+  void addPost(
+    BuildContext context,
+    WidgetRef ref,
+    Post post,
+  ) async {
     state = true;
     final response = await ref.watch(postApiProvider).createPost(post);
     return response.fold((failure) {
       showSnackbar(context, failure.message);
       state = false;
-    }, (document) {
+    }, (document) async {
       showSnackbar(context, "Post added successfully");
       Navigator.pop(context);
       state = false;
+      await ref.watch(storageApiProvider).uploadMedia(post.media, post.postId);
+      await ref
+          .watch(storageApiProvider)
+          .uploadThumbnail(post.thumbnail, post.postId);
     });
   }
 
   Future<List<Post>> getPosts() async {
-    state = true;
     final posts = await _postApi.getPosts();
-    state = false;
-    return posts.map((e) => Post.fromMap(e.data)).toList();
+    return posts.map((post) => Post.fromMap(post.data)).toList();
   }
 
-  void removePost(Post post) {}
+  Stream<RealtimeMessage> getLatestPosts() async* {
+    yield* _postApi.getLatestPosts();
+  }
+
+  void removePost(BuildContext context, WidgetRef ref, Post post) async {
+    state = true;
+    final response = await _postApi.deletePost(post);
+    response.fold(
+      (failure) {
+        showSnackbar(context, failure.message);
+        state = false;
+      },
+      (document) async {
+        Navigator.of(context).pop();
+        showSnackbar(context, "Post deleted");
+        state = false;
+        await ref.watch(storageApiProvider).deleteMedia(post.postId);
+        await ref.watch(storageApiProvider).deleteThumbnail(post.postId);
+      },
+    );
+  }
 
   //Likes
 
   void updateLikes(BuildContext context, Post post, int scale,
       LikedPostsOfCurrentUser likedPosts) async {
-    post = post.copyWith(
+    final newPost = post.copyWith(
       numberOfLikes: post.numberOfLikes + scale,
     );
 
-    final response = await _postApi.updateLikesOfPost(post);
+    final response = await _postApi.updateLikesOfPost(newPost);
     response.fold(
       (failure) {
         showSnackbar(context, failure.message);
@@ -68,24 +102,24 @@ class AllPostsProvider extends StateNotifier<bool> {
       (document) async {
         //temp
         if (scale > 0) {
-          likedPosts = likedPosts.copyWith(
-            listofPostId: [
-              ...likedPosts.listofPostId,
+          final newLikedPosts = likedPosts.copyWith(
+            posts: [
+              ...likedPosts.posts,
               post.postId,
             ],
           );
           final res =
-              await _postApi.updateListOfLikedPostsOfCurrentUser(likedPosts);
+              await _postApi.updateListOfLikedPostsOfCurrentUser(newLikedPosts);
           res.fold((l) {
             showSnackbar(context, l.message);
           }, (r) {
             showSnackbar(context, "You liked this post");
           });
         } else {
-          final newLikedPosts = likedPosts.listofPostId;
+          final newLikedPosts = likedPosts.posts;
           newLikedPosts.removeWhere((e) => e == post.postId);
           likedPosts = likedPosts.copyWith(
-            listofPostId: newLikedPosts,
+            posts: newLikedPosts,
           );
           final res =
               await _postApi.updateListOfLikedPostsOfCurrentUser(likedPosts);
@@ -107,7 +141,7 @@ class AllPostsProvider extends StateNotifier<bool> {
     final response =
         await _postApi.addLikedPostToListOfCurrentUser(LikedPostsOfCurrentUser(
       uid: uid,
-      listofPostId: [],
+      posts: [],
     ));
 
     response.fold(

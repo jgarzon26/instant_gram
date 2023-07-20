@@ -4,19 +4,19 @@ import 'package:flutter/foundation.dart';
 
 class LikedPostsOfCurrentUser {
   String uid;
-  List<String> listofPostId;
+  List<String> posts;
   LikedPostsOfCurrentUser({
     required this.uid,
-    required this.listofPostId,
+    required this.posts,
   });
 
   LikedPostsOfCurrentUser copyWith({
     String? uid,
-    List<String>? listofPostId,
+    List<String>? posts,
   }) {
     return LikedPostsOfCurrentUser(
       uid: uid ?? this.uid,
-      listofPostId: listofPostId ?? this.listofPostId,
+      posts: posts ?? this.posts,
     );
   }
 
@@ -24,7 +24,7 @@ class LikedPostsOfCurrentUser {
     final result = <String, dynamic>{};
 
     result.addAll({'uid': uid});
-    result.addAll({'posts': listofPostId});
+    result.addAll({'posts': posts});
 
     return result;
   }
@@ -32,7 +32,7 @@ class LikedPostsOfCurrentUser {
   factory LikedPostsOfCurrentUser.fromMap(Map<String, dynamic> map) {
     return LikedPostsOfCurrentUser(
       uid: map['uid'] ?? '',
-      listofPostId: List<String>.from(map['posts']),
+      posts: List<String>.from(map['posts']),
     );
   }
 
@@ -42,8 +42,7 @@ class LikedPostsOfCurrentUser {
       LikedPostsOfCurrentUser.fromMap(json.decode(source));
 
   @override
-  String toString() =>
-      'LikedPostsOfCurrentUser(uid: $uid, listofPostId: $listofPostId)';
+  String toString() => 'LikedPostsOfCurrentUser(uid: $uid, posts: $posts)';
 
   @override
   bool operator ==(Object other) {
@@ -51,9 +50,9 @@ class LikedPostsOfCurrentUser {
 
     return other is LikedPostsOfCurrentUser &&
         other.uid == uid &&
-        listEquals(other.listofPostId, listofPostId);
+        listEquals(other.posts, posts);
   }
 
   @override
-  int get hashCode => uid.hashCode ^ listofPostId.hashCode;
+  int get hashCode => uid.hashCode ^ posts.hashCode;
 }

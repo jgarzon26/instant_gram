@@ -14,20 +14,27 @@ class StorageApi {
 
   StorageApi(this._storage);
 
-  Future<String> uploadMedia(File media) async {
+  Future<String> uploadMedia(File media, String postId) async {
     final uploadedMedia = await _storage.createFile(
       bucketId: Appwrite.imagesAndVideosBucketId,
-      fileId: ID.unique(),
+      fileId: postId,
       file: InputFile.fromPath(path: media.path),
     );
 
     return uploadedMedia.$id;
   }
 
-  Future<String> uploadThumbnail(String path) async {
+  Future deleteMedia(String postId) async {
+    return await _storage.deleteFile(
+      fileId: postId,
+      bucketId: Appwrite.imagesAndVideosBucketId,
+    );
+  }
+
+  Future<String> uploadThumbnail(String path, String postId) async {
     final uploadedThumbnail = await _storage.createFile(
       bucketId: Appwrite.imagesAndVideosBucketId,
-      fileId: ID.unique(),
+      fileId: postId,
       file: InputFile.fromPath(
         path: path,
         filename: 'thumbnail${ID.unique().substring(0, 4)}',
@@ -35,5 +42,12 @@ class StorageApi {
     );
 
     return uploadedThumbnail.$id;
+  }
+
+  Future deleteThumbnail(String postId) async {
+    return await _storage.deleteFile(
+      fileId: postId,
+      bucketId: Appwrite.imagesAndVideosBucketId,
+    );
   }
 }
