@@ -48,4 +48,19 @@ class UserComment {
 
   @override
   int get hashCode => comment.hashCode ^ userName.hashCode;
+
+  static List<UserComment> toUserComment({
+    required List<String> comments,
+    required List<String> commentsUserName,
+  }) {
+    final List<UserComment> userComments = [];
+    for (int i = 0; i < comments.length; i++) {
+      userComments.add(UserComment(
+        comment: comments[i],
+        userName: commentsUserName[i],
+      ));
+    }
+
+    return userComments;
+  }
 }

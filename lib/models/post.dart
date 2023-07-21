@@ -5,8 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
-import 'package:instant_gram/models/models.dart';
-
 class Post {
   final String postId;
   final String uid;
@@ -18,7 +16,9 @@ class Post {
   final DateTime postDate;
   final bool isVideo;
   final String thumbnail;
-  List<UserComment> comments;
+  List<String> commentId;
+  List<String> comments;
+  List<String> commentsUserName;
   int numberOfLikes;
 
   Post({
@@ -32,7 +32,9 @@ class Post {
     required this.postDate,
     required this.isVideo,
     required this.thumbnail,
+    this.commentId = const [],
     this.comments = const [],
+    this.commentsUserName = const [],
     this.numberOfLikes = 0,
   });
 
@@ -47,7 +49,9 @@ class Post {
     DateTime? postDate,
     bool? isVideo,
     String? thumbnail,
-    List<UserComment>? comments,
+    List<String>? commentId,
+    List<String>? comments,
+    List<String>? commentsUserName,
     int? numberOfLikes,
   }) {
     return Post(
@@ -61,7 +65,9 @@ class Post {
       postDate: postDate ?? this.postDate,
       isVideo: isVideo ?? this.isVideo,
       thumbnail: thumbnail ?? this.thumbnail,
+      commentId: commentId ?? this.commentId,
       comments: comments ?? this.comments,
+      commentsUserName: commentsUserName ?? this.commentsUserName,
       numberOfLikes: numberOfLikes ?? this.numberOfLikes,
     );
   }
@@ -79,7 +85,9 @@ class Post {
     result.addAll({'postDate': postDate.millisecondsSinceEpoch});
     result.addAll({'isVideo': isVideo});
     result.addAll({'thumbnail': thumbnail});
-    result.addAll({'comments': comments.map((x) => x.toMap()).toList()});
+    result.addAll({'commentId': commentId});
+    result.addAll({'comments': comments});
+    result.addAll({'commentsUserName': commentsUserName});
     result.addAll({'numberOfLikes': numberOfLikes});
 
     return result;
@@ -97,15 +105,17 @@ class Post {
       postDate: DateTime.fromMillisecondsSinceEpoch(map['postDate']),
       isVideo: map['isVideo'] ?? false,
       thumbnail: map['thumbnail'] ?? '',
-      comments: List<UserComment>.from(
-          map['comments']?.map((x) => UserComment.fromMap(x))),
+      commentId: List<String>.from(map['commentId'] ?? [] as List<String>),
+      comments: List<String>.from(map['comments'] ?? [] as List<String>),
+      commentsUserName:
+          List<String>.from(map['commentsUserName'] ?? [] as List<String>),
       numberOfLikes: map['numberOfLikes']?.toInt() ?? 0,
     );
   }
 
   @override
   String toString() {
-    return 'Post(uid: $uid, username: $username, media: $media, description: $description, allowLikes: $allowLikes, allowComments: $allowComments, postDate: $postDate, isVideo: $isVideo, thumbnail: $thumbnail, comments: $comments, numberOfLikes: $numberOfLikes)';
+    return 'Post(postId: $postId, uid: $uid, username: $username, media: $media, description: $description, allowLikes: $allowLikes, allowComments: $allowComments, postDate: $postDate, isVideo: $isVideo, thumbnail: $thumbnail, commentId: $commentId, comments: $comments, commentsUserName: $commentsUserName, numberOfLikes: $numberOfLikes)';
   }
 
   @override
@@ -113,6 +123,7 @@ class Post {
     if (identical(this, other)) return true;
 
     return other is Post &&
+        other.postId == postId &&
         other.uid == uid &&
         other.username == username &&
         other.media == media &&
@@ -122,13 +133,16 @@ class Post {
         other.postDate == postDate &&
         other.isVideo == isVideo &&
         other.thumbnail == thumbnail &&
+        listEquals(other.commentId, commentId) &&
         listEquals(other.comments, comments) &&
+        listEquals(other.commentsUserName, commentsUserName) &&
         other.numberOfLikes == numberOfLikes;
   }
 
   @override
   int get hashCode {
-    return uid.hashCode ^
+    return postId.hashCode ^
+        uid.hashCode ^
         username.hashCode ^
         media.hashCode ^
         description.hashCode ^
@@ -137,7 +151,9 @@ class Post {
         postDate.hashCode ^
         isVideo.hashCode ^
         thumbnail.hashCode ^
+        commentId.hashCode ^
         comments.hashCode ^
+        commentsUserName.hashCode ^
         numberOfLikes.hashCode;
   }
 

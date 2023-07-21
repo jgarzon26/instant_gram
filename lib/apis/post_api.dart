@@ -98,7 +98,9 @@ class PostApi {
           collectionId: Appwrite.postDetailscollectionId,
           documentId: newPost.postId,
           data: {
-            'comments': newPost.comments.map((e) => e.toMap()).toList(),
+            'commentId': newPost.commentId,
+            'comments': newPost.comments,
+            'commentsUserName': newPost.commentsUserName,
           });
 
       return Right(document);

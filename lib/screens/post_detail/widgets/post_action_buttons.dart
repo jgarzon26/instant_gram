@@ -58,9 +58,6 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
             visible: widget.allowLikes,
             child: IconButton(
               onPressed: () async {
-                setState(() {
-                  hasLiked = !hasLiked;
-                });
                 await ref
                     .read(allPostsProvider.notifier)
                     .getListOfLikedPostsOfCurrentUser(widget.post.uid)
@@ -78,6 +75,9 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
                             -1,
                             value,
                           );
+                });
+                setState(() {
+                  hasLiked = !hasLiked;
                 });
               },
               icon: !hasLiked

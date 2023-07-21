@@ -26,6 +26,7 @@ class PostDetail extends ConsumerStatefulWidget {
 
 class _PostDetailState extends ConsumerState<PostDetail> {
   VideoPlayerController? videoPlayerController;
+  List<UserComment> userComments = [];
 
   @override
   void initState() {
@@ -37,6 +38,10 @@ class _PostDetailState extends ConsumerState<PostDetail> {
           setState(() {});
         });
     }
+    userComments = UserComment.toUserComment(
+      comments: widget.post.comments,
+      commentsUserName: widget.post.commentsUserName,
+    );
   }
 
   @override
@@ -131,7 +136,7 @@ class _PostDetailState extends ConsumerState<PostDetail> {
                 const SizedBox(height: 15),
                 widget.post.comments.isNotEmpty
                     ? MiniCommentsSection(
-                        comments: widget.post.comments,
+                        comments: userComments,
                       )
                     : const SizedBox.shrink(),
               ],

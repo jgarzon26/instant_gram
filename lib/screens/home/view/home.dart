@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:instant_gram/core/utils.dart';
+import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
 import 'package:instant_gram/screens/home/widgets/home_appbar.dart';
 
@@ -40,32 +41,47 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(
-            kToolbarHeight * 2,
-          ),
-          child: HomeAppBar(
-            tabController: tabController,
-            pageController: pageController,
-            bottomIcons: bottomIcons,
-          ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(
+          kToolbarHeight * 2,
         ),
-        body: PageView(
-          controller: pageController,
-          onPageChanged: (index) {
-            tabController.animateTo(
-              index,
-              duration: const Duration(
-                milliseconds: 100,
+        child: HomeAppBar(
+          tabController: tabController,
+          pageController: pageController,
+          bottomIcons: bottomIcons,
+        ),
+      ),
+      body: ref.watch(getPostsProvider).when(
+        data: (posts) {
+          return PageView(
+            controller: pageController,
+            onPageChanged: (index) {
+              tabController.animateTo(
+                index,
+                duration: const Duration(
+                  milliseconds: 100,
+                ),
+              );
+              dismissKeyboardOnLoseFocus(context);
+            },
+            children: [
+              const UserPostsGridView(),
+              SearchPage(
+                allPosts: posts,
               ),
-            );
-            dismissKeyboardOnLoseFocus(context);
-          },
-          children: const [
-            UserPostsGridView(),
-            SearchPage(),
-            CommonPostsGridView(),
-          ],
-        ));
+              CommonPostsGridView(
+                posts: posts,
+              ),
+            ],
+          );
+        },
+        error: (e, st) {
+          return null;
+        },
+        loading: () {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        },
+      ),
+    );
   }
 }

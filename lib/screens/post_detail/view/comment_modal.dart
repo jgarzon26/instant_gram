@@ -20,10 +20,15 @@ class CommentModal extends ConsumerStatefulWidget {
 
 class _CommentModalState extends ConsumerState<CommentModal> {
   final TextEditingController inputCommentController = TextEditingController();
+  List<UserComment> userComments = [];
 
   @override
   void initState() {
     super.initState();
+    userComments = UserComment.toUserComment(
+      comments: widget.post.comments,
+      commentsUserName: widget.post.commentsUserName,
+    );
   }
 
   @override
@@ -55,7 +60,7 @@ class _CommentModalState extends ConsumerState<CommentModal> {
                     comment: inputCommentController.text,
                     userName: user.name,
                   );
-                  ref.watch(allPostsProvider.notifier).addCommentsOfPost(
+                  ref.read(allPostsProvider.notifier).addCommentsOfPost(
                       context, ref, userComment, widget.post);
                 });
               },
@@ -64,8 +69,11 @@ class _CommentModalState extends ConsumerState<CommentModal> {
           ],
         ),
         body: Stack(
+          fit: StackFit.expand,
           children: [
-            buildCommentsSection(widget.post),
+            widget.post.comments.isEmpty
+                ? displayEmptySection(context)
+                : buildCommentsSection(),
             Positioned(
               left: 0,
               right: 0,
@@ -101,43 +109,24 @@ class _CommentModalState extends ConsumerState<CommentModal> {
                 fontSize: 20,
               ),
         ),
-        Expanded(
-          child: Image.asset(
-            "assets/images/empty_search.png",
-            height: MediaQuery.of(context).size.height * 0.3,
-            fit: BoxFit.cover,
-          ),
+        Image.asset(
+          "assets/images/empty_search.png",
+          height: MediaQuery.of(context).size.height * 0.3,
+          fit: BoxFit.cover,
         ),
       ],
     );
   }
 
-  Widget buildCommentsSection(Post post) {
-    return ref.watch(getLatestPostsProvider).when(
-          data: (data) {
-            return ref.watch(getCommentsProvider(post)).when(
-                  data: (post) {
-                    return post.comments.isEmpty
-                        ? displayEmptySection(context)
-                        : ListView.builder(
-                            itemCount: post.comments.length,
-                            itemBuilder: (context, index) {
-                              return CommentListTile(
-                                userComment: post.comments[index],
-                                post: post,
-                              );
-                            },
-                          );
-                  },
-                  error: (e, st) =>
-                      const Center(child: Text('Something went wrong')),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator.adaptive()),
-                );
-          },
-          error: (e, st) => const Center(child: Text('Something went wrong')),
-          loading: () =>
-              const Center(child: CircularProgressIndicator.adaptive()),
+  Widget buildCommentsSection() {
+    return ListView.builder(
+      itemCount: widget.post.comments.length,
+      itemBuilder: (context, index) {
+        return CommentListTile(
+          userComment: userComments[index],
+          post: widget.post,
         );
+      },
+    );
   }
 }

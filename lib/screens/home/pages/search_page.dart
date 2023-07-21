@@ -5,8 +5,11 @@ import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/widgets/posts_grid_view.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
+  final List<Post> allPosts;
+
   const SearchPage({
     super.key,
+    required this.allPosts,
   });
 
   @override
@@ -17,6 +20,27 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   final searchController = TextEditingController();
 
   List<Post> searchResults = [];
+
+  @override
+  void initState() {
+    super.initState();
+    searchController.addListener(() {
+      if (searchController.text.isEmpty) {
+        setState(() {
+          searchResults = [];
+        });
+      } else {
+        List<Post> posts = widget.allPosts
+            .where((post) => post.description
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase()))
+            .toList();
+        setState(() {
+          searchResults = posts;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -39,24 +63,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             ),
             child: TextField(
               controller: searchController,
-              onChanged: (value) async {
-                List<Post> allPosts =
-                    await ref.watch(allPostsProvider.notifier).getPosts();
-                if (value.isEmpty) {
-                  setState(() {
-                    searchResults = [];
-                  });
-                } else {
-                  List<Post> posts = allPosts
-                      .where((post) => post.description
-                          .toLowerCase()
-                          .contains(value.toLowerCase()))
-                      .toList();
-                  setState(() {
-                    searchResults = posts;
-                  });
-                }
-              },
               decoration: InputDecoration(
                 hintText: "Enter your search term here",
                 suffixIcon: IconButton(
@@ -74,7 +80,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           !isLoading
               ? searchResults.isEmpty
                   ? buildEmptyResult(context)
-                  : buildResults()
+                  : PostsGridView(
+                      userPosts: searchResults,
+                      shrinkWrap: true,
+                    )
               : const Center(
                   child: CircularProgressIndicator.adaptive(),
                 ),
@@ -109,13 +118,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildResults() {
-    return PostsGridView(
-      userPosts: searchResults,
-      shrinkWrap: true,
     );
   }
 }

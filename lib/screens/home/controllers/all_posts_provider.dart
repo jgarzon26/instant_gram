@@ -185,19 +185,31 @@ class AllPostsProvider extends StateNotifier<bool> {
     return Post.fromMap(response.data);
   }
 
-  void addCommentsOfPost(BuildContext context, WidgetRef ref,
-      UserComment userComment, Post post) async {
-    post = post.copyWith(
+  void addCommentsOfPost(
+    BuildContext context,
+    WidgetRef ref,
+    UserComment userComment,
+    Post post,
+  ) async {
+    final newPost = post.copyWith(
+      commentId: [
+        ...post.commentId,
+        userComment.commentId,
+      ],
       comments: [
         ...post.comments,
-        userComment,
+        userComment.comment,
+      ],
+      commentsUserName: [
+        ...post.commentsUserName,
+        userComment.userName,
       ],
     );
     final response =
-        await ref.watch(postApiProvider).updateCommentsOfPost(post);
+        await ref.watch(postApiProvider).updateCommentsOfPost(newPost);
     response.fold(
       (failure) {
-        showSnackbar(context, 'Cannot add comment');
+        showSnackbar(context, failure.message);
         dismissKeyboardOnLoseFocus(context);
       },
       (document) {
@@ -209,14 +221,14 @@ class AllPostsProvider extends StateNotifier<bool> {
 
   void removeCommentsOfPost(BuildContext context, WidgetRef ref,
       UserComment comment, Post post) async {
-    final newPostComment = post.comments;
-    newPostComment.removeWhere((e) => e.commentId == comment.commentId);
-    post = post.copyWith(
-      comments: newPostComment,
-    );
+    final newPost = post;
+    int indexOfComment = newPost.commentId.indexOf(comment.commentId);
+    newPost.commentId.removeAt(indexOfComment);
+    newPost.comments.removeAt(indexOfComment);
+    newPost.commentsUserName.removeAt(indexOfComment);
 
     final response =
-        await ref.watch(postApiProvider).updateCommentsOfPost(post);
+        await ref.watch(postApiProvider).updateCommentsOfPost(newPost);
 
     response.fold(
       (failure) {
