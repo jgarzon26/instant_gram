@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:instant_gram/core/utils.dart';
-import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/pages/pages.dart';
 import 'package:instant_gram/screens/home/widgets/home_appbar.dart';
 
@@ -51,36 +50,22 @@ class _HomeState extends ConsumerState<Home> with TickerProviderStateMixin {
           bottomIcons: bottomIcons,
         ),
       ),
-      body: ref.watch(getPostsProvider).when(
-        data: (posts) {
-          return PageView(
-            controller: pageController,
-            onPageChanged: (index) {
-              tabController.animateTo(
-                index,
-                duration: const Duration(
-                  milliseconds: 100,
-                ),
-              );
-              dismissKeyboardOnLoseFocus(context);
-            },
-            children: [
-              const UserPostsGridView(),
-              SearchPage(
-                allPosts: posts,
-              ),
-              CommonPostsGridView(
-                posts: posts,
-              ),
-            ],
+      body: PageView(
+        controller: pageController,
+        onPageChanged: (index) {
+          tabController.animateTo(
+            index,
+            duration: const Duration(
+              milliseconds: 100,
+            ),
           );
+          dismissKeyboardOnLoseFocus(context);
         },
-        error: (e, st) {
-          return null;
-        },
-        loading: () {
-          return const Center(child: CircularProgressIndicator.adaptive());
-        },
+        children: const [
+          UserPostsGridView(),
+          SearchPage(),
+          CommonPostsGridView(),
+        ],
       ),
     );
   }

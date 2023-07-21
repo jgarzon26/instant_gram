@@ -5,11 +5,8 @@ import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/home/widgets/posts_grid_view.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
-  final List<Post> allPosts;
-
   const SearchPage({
     super.key,
-    required this.allPosts,
   });
 
   @override
@@ -24,13 +21,15 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   @override
   void initState() {
     super.initState();
-    searchController.addListener(() {
+    searchController.addListener(() async {
       if (searchController.text.isEmpty) {
         setState(() {
           searchResults = [];
         });
       } else {
-        List<Post> posts = widget.allPosts
+        List<Post> allPosts =
+            await ref.read(allPostsProvider.notifier).getPosts();
+        List<Post> posts = allPosts
             .where((post) => post.description
                 .toLowerCase()
                 .contains(searchController.text.toLowerCase()))
