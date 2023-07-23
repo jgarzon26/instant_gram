@@ -6,12 +6,12 @@ import '../screens/auth/controller/auth_controller.dart';
 
 class DeleteIcon extends ConsumerWidget {
   final Post post;
-  final VoidCallback? onPressed;
+  final VoidCallback onPressed;
 
   const DeleteIcon({
     super.key,
     required this.post,
-    this.onPressed,
+    required this.onPressed,
   });
 
   @override

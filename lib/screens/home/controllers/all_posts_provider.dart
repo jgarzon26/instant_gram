@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -237,13 +239,19 @@ class AllPostsProvider extends StateNotifier<bool> {
     );
   }
 
-  void removeCommentsOfPost(BuildContext context, WidgetRef ref,
-      UserComment comment, Post post) async {
+  void removeCommentsOfPost(
+    BuildContext context,
+    WidgetRef ref,
+    UserComment comment,
+    Post post,
+  ) async {
     final newPost = post;
     int indexOfComment = newPost.commentId.indexOf(comment.commentId);
     newPost.commentId.removeAt(indexOfComment);
     newPost.comments.removeAt(indexOfComment);
     newPost.commentsUserName.removeAt(indexOfComment);
+
+    log('newPost: $newPost');
 
     final response =
         await ref.watch(postApiProvider).updateCommentsOfPost(newPost);
