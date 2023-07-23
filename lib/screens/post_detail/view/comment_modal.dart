@@ -20,16 +20,6 @@ class CommentModal extends ConsumerStatefulWidget {
 
 class _CommentModalState extends ConsumerState<CommentModal> {
   final TextEditingController inputCommentController = TextEditingController();
-  List<UserComment> userComments = [];
-
-  @override
-  void initState() {
-    super.initState();
-    userComments = UserComment.toUserComment(
-      comments: widget.post.comments,
-      commentsUserName: widget.post.commentsUserName,
-    );
-  }
 
   @override
   void dispose() {
@@ -68,30 +58,72 @@ class _CommentModalState extends ConsumerState<CommentModal> {
             ),
           ],
         ),
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            widget.post.comments.isEmpty
-                ? displayEmptySection(context)
-                : buildCommentsSection(),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: inputCommentController,
-                  decoration: const InputDecoration(
-                    hintText: "Write your comment here...",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-            ),
-          ],
+        body: FutureBuilder(
+          future: Future(() => ref
+              .watch(allPostsProvider.notifier)
+              .getPostById(widget.post.postId)),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator.adaptive(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            } else {
+              final post = snapshot.data as Post;
+              final userComments = UserComment.toUserComment(
+                  comments: post.comments,
+                  commentsUserName: post.commentsUserName);
+              return ref.watch(getLatestPostsProvider).when(
+                    data: (data) {
+                      return buildCommentBody(
+                        context,
+                        post,
+                        userComments,
+                      );
+                    },
+                    error: (e, st) => Center(
+                      child: Text(e.toString()),
+                    ),
+                    loading: () => buildCommentBody(
+                      context,
+                      post,
+                      userComments,
+                    ),
+                  );
+            }
+          },
         ),
       ),
+    );
+  }
+
+  Widget buildCommentBody(
+      BuildContext context, Post post, List<UserComment> userComments) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        post.comments.isEmpty
+            ? displayEmptySection(context)
+            : buildCommentsSection(post, userComments),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: inputCommentController,
+              decoration: const InputDecoration(
+                hintText: "Write your comment here...",
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -118,13 +150,13 @@ class _CommentModalState extends ConsumerState<CommentModal> {
     );
   }
 
-  Widget buildCommentsSection() {
+  Widget buildCommentsSection(Post post, List<UserComment> userComments) {
     return ListView.builder(
-      itemCount: widget.post.comments.length,
+      itemCount: post.comments.length,
       itemBuilder: (context, index) {
         return CommentListTile(
           userComment: userComments[index],
-          post: widget.post,
+          post: post,
         );
       },
     );
