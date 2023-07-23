@@ -26,7 +26,6 @@ class PostDetail extends ConsumerStatefulWidget {
 
 class _PostDetailState extends ConsumerState<PostDetail> {
   VideoPlayerController? videoPlayerController;
-  List<UserComment> userComments = [];
 
   @override
   void initState() {
@@ -38,10 +37,6 @@ class _PostDetailState extends ConsumerState<PostDetail> {
           setState(() {});
         });
     }
-    userComments = UserComment.toUserComment(
-      comments: widget.post.comments,
-      commentsUserName: widget.post.commentsUserName,
-    );
   }
 
   @override
@@ -82,9 +77,10 @@ class _PostDetailState extends ConsumerState<PostDetail> {
             ),
           ),
           PostActionButtons(
-            allowLikes: widget.post.allowLikes,
-            allowComments: widget.post.allowComments,
-            post: widget.post,
+            postId: widget.post.postId,
+            onPressed: () {
+              setState(() {});
+            },
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -123,20 +119,63 @@ class _PostDetailState extends ConsumerState<PostDetail> {
                   height: 60,
                   thickness: 3,
                 ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "${widget.post.numberOfLikes} ${changePerson()} liked this",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontWeight: FontWeight.normal,
-                          letterSpacing: 1.2,
-                        ),
-                  ),
-                ),
+                FutureBuilder(
+                    future: Future(() => ref
+                        .watch(allPostsProvider.notifier)
+                        .getPostById(widget.post.postId)),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox.shrink(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(snapshot.error.toString()));
+                      } else {
+                        Post post = snapshot.data as Post;
+                        return ref.watch(getLatestPostsProvider).when(
+                              data: (data) {
+                                return Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "${post.numberOfLikes} ${changePerson(post.numberOfLikes)} liked this",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                          fontWeight: FontWeight.normal,
+                                          letterSpacing: 1.2,
+                                        ),
+                                  ),
+                                );
+                              },
+                              error: (e, st) => Center(
+                                child: Text(e.toString()),
+                              ),
+                              loading: () {
+                                return Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "${post.numberOfLikes} ${changePerson(post.numberOfLikes)} liked this",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                          fontWeight: FontWeight.normal,
+                                          letterSpacing: 1.2,
+                                        ),
+                                  ),
+                                );
+                              },
+                            );
+                      }
+                    }),
                 const SizedBox(height: 15),
                 widget.post.comments.isNotEmpty
                     ? MiniCommentsSection(
-                        comments: userComments,
+                        post: widget.post,
                       )
                     : const SizedBox.shrink(),
               ],
@@ -147,8 +186,8 @@ class _PostDetailState extends ConsumerState<PostDetail> {
     );
   }
 
-  String changePerson() {
-    if (widget.post.numberOfLikes <= 1) {
+  String changePerson(int num) {
+    if (num <= 1) {
       return "person";
     } else {
       return "persons";

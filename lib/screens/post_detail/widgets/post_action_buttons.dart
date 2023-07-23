@@ -1,84 +1,92 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:instant_gram/models/liked_posts.dart';
 import 'package:instant_gram/models/models.dart';
 import 'package:instant_gram/screens/home/controllers/all_posts_provider.dart';
 import 'package:instant_gram/screens/post_detail/view/comment_modal.dart';
 
-class PostActionButtons extends ConsumerStatefulWidget {
+class PostActionButtons extends ConsumerWidget {
   const PostActionButtons({
+    required this.onPressed,
+    required this.postId,
     super.key,
-    required this.allowLikes,
-    required this.allowComments,
-    required this.post,
   });
 
-  final bool allowLikes, allowComments;
-  final Post post;
+  final String postId;
+  final VoidCallback onPressed;
 
   @override
-  ConsumerState<PostActionButtons> createState() => _PostActionButtonsState();
-}
-
-class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
-  bool hasLiked = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ref
-        .watch(getListOfLikedPostsOfCurrentUserProvider(widget.post.uid))
-        .when(
-      data: (posts) {
-        if (posts.posts.contains(widget.post.postId)) {
-          hasLiked = true;
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder(
+      future: Future(
+          () => ref.watch(allPostsProvider.notifier).getPostById(postId)),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox.shrink();
+        } else if (snapshot.hasError) {
+          return const Text("Error");
+        } else {
+          final post = snapshot.data as Post;
+          return FutureBuilder(
+            future: Future(() => ref
+                .watch(allPostsProvider.notifier)
+                .getListOfLikedPostsOfCurrentUser(post.uid)),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox.shrink();
+              } else if (snapshot.hasError) {
+                return const SizedBox.shrink();
+              } else {
+                final likedPosts = snapshot.data as LikedPostsOfCurrentUser;
+                final hasLiked = likedPosts.posts.contains(post.postId);
+                return ref.watch(getLatestListOfLikedPostsProvider).when(
+                  data: (data) {
+                    return buildActionButtons(
+                        post, context, hasLiked, ref, likedPosts);
+                  },
+                  error: (e, st) {
+                    return const SizedBox.shrink();
+                  },
+                  loading: () {
+                    return buildActionButtons(
+                        post, context, hasLiked, ref, likedPosts);
+                  },
+                );
+              }
+            },
+          );
         }
-        return buildActionButtons(context);
-      },
-      error: (e, st) {
-        return const SizedBox.shrink();
-      },
-      loading: () {
-        return const SizedBox.shrink();
       },
     );
   }
 
-  SizedBox buildActionButtons(BuildContext context) {
+  Widget buildActionButtons(Post post, BuildContext context, bool hasLiked,
+      WidgetRef ref, LikedPostsOfCurrentUser likedPosts) {
     return SizedBox(
-      height: (widget.allowLikes == false && widget.allowComments == false)
+      height: (post.allowLikes == false && post.allowComments == false)
           ? MediaQuery.of(context).size.height * 0.05
           : null,
       child: Row(
         children: [
           Visibility(
-            visible: widget.allowLikes,
+            visible: post.allowLikes,
             child: IconButton(
-              onPressed: () async {
-                await ref
-                    .read(allPostsProvider.notifier)
-                    .getListOfLikedPostsOfCurrentUser(widget.post.uid)
-                    .then((value) {
-                  hasLiked
-                      ? ref.read(allPostsProvider.notifier).updateLikes(
-                            context,
-                            widget.post,
-                            1,
-                            value,
-                          )
-                      : ref.read(allPostsProvider.notifier).updateLikes(
-                            context,
-                            widget.post,
-                            -1,
-                            value,
-                          );
-                });
-                setState(() {
-                  hasLiked = !hasLiked;
-                });
+              onPressed: () {
+                hasLiked
+                    ? ref.read(allPostsProvider.notifier).updateLikes(
+                          context,
+                          post,
+                          false,
+                          likedPosts,
+                          onPressed,
+                        )
+                    : ref.read(allPostsProvider.notifier).updateLikes(
+                          context,
+                          post,
+                          true,
+                          likedPosts,
+                          onPressed,
+                        );
               },
               icon: !hasLiked
                   ? const Icon(Icons.favorite_border)
@@ -86,7 +94,7 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
             ),
           ),
           Visibility(
-            visible: widget.allowComments,
+            visible: post.allowComments,
             child: IconButton(
               onPressed: () {
                 showModalBottomSheet(
@@ -95,7 +103,7 @@ class _PostActionButtonsState extends ConsumerState<PostActionButtons> {
                   context: context,
                   builder: (_) {
                     return CommentModal(
-                      post: widget.post,
+                      post: post,
                     );
                   },
                 );

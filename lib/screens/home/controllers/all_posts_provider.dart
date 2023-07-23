@@ -25,8 +25,12 @@ final getCommentsProvider = FutureProvider.family((ref, Post post) {
   return provider.getCommentOfPost(post);
 });
 
-final getListOfLikedPostsOfCurrentUserProvider =
-    FutureProvider.family((ref, String uid) {
+final getLatestListOfLikedPostsProvider = StreamProvider((ref) {
+  final provider = ref.watch(allPostsProvider.notifier);
+  return provider.getLatestListOfLikedPosts();
+});
+
+final getListOfLikedPosts = FutureProvider.family((ref, String uid) {
   final provider = ref.watch(allPostsProvider.notifier);
   return provider.getListOfLikedPostsOfCurrentUser(uid);
 });
@@ -66,6 +70,13 @@ class AllPostsProvider extends StateNotifier<bool> {
     return posts.map((post) => Post.fromMap(post.data)).toList();
   }
 
+  Future<Post> getPostById(String postId) async {
+    state = true;
+    final post = await _postApi.getPostById(postId);
+    state = false;
+    return Post.fromMap(post.data);
+  }
+
   Stream<RealtimeMessage> getLatestPosts() async* {
     yield* _postApi.getLatestPosts();
   }
@@ -90,10 +101,11 @@ class AllPostsProvider extends StateNotifier<bool> {
 
   //Likes
 
-  void updateLikes(BuildContext context, Post post, int scale,
-      LikedPostsOfCurrentUser likedPosts) async {
+  void updateLikes(BuildContext context, Post post, bool isIncrementing,
+      LikedPostsOfCurrentUser likedPosts, VoidCallback resetState) async {
     final newPost = post.copyWith(
-      numberOfLikes: post.numberOfLikes + scale,
+      numberOfLikes:
+          isIncrementing ? post.numberOfLikes + 1 : post.numberOfLikes - 1,
     );
 
     final response = await _postApi.updateLikesOfPost(newPost);
@@ -103,7 +115,7 @@ class AllPostsProvider extends StateNotifier<bool> {
       },
       (document) async {
         //temp
-        if (scale > 0) {
+        if (isIncrementing) {
           final newLikedPosts = likedPosts.copyWith(
             posts: [
               ...likedPosts.posts,
@@ -116,6 +128,7 @@ class AllPostsProvider extends StateNotifier<bool> {
             showSnackbar(context, l.message);
           }, (r) {
             showSnackbar(context, "You liked this post");
+            resetState();
           });
         } else {
           final newLikedPosts = likedPosts.posts;
@@ -129,6 +142,7 @@ class AllPostsProvider extends StateNotifier<bool> {
             showSnackbar(context, l.message);
           }, (r) {
             showSnackbar(context, "You removed your like");
+            resetState();
           });
         }
       },
@@ -160,6 +174,10 @@ class AllPostsProvider extends StateNotifier<bool> {
         Navigator.pushReplacementNamed(context, '/home');
       },
     );
+  }
+
+  Stream<RealtimeMessage> getLatestListOfLikedPosts() async* {
+    yield* _postApi.getLatestListOfLikedPosts();
   }
 
   /* Future<List<LikedPostsOfCurrentUser>> _getListOfLikedPostsOfAllUsers() async {

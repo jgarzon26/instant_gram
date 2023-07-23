@@ -43,6 +43,16 @@ class PostApi {
     return documents.documents;
   }
 
+  Future<Document> getPostById(String postId) async {
+    final document = await _database.getDocument(
+      databaseId: Appwrite.databaseId,
+      collectionId: Appwrite.postDetailscollectionId,
+      documentId: postId,
+    );
+
+    return document;
+  }
+
   Future<List<Document>> getPostsOfCurrentUser(String uid) async {
     final documents = await _database.listDocuments(
       databaseId: Appwrite.databaseId,
@@ -152,6 +162,14 @@ class PostApi {
     );
 
     return document;
+  }
+
+  Stream<RealtimeMessage> getLatestListOfLikedPosts() {
+    return _realTime.subscribe([
+      'databases.${Appwrite.databaseId}.collections.${Appwrite.likedPostsCollectionId}.documents',
+      'collections.${Appwrite.likedPostsCollectionId}.documents',
+      'documents',
+    ]).stream;
   }
 
   Future<List<Document>> getListOfLikedPostsOfAllUsers() async {
